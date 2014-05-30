@@ -1,27 +1,27 @@
-assert 'Mruby::MRB_GC_ARENA_SIZE' do
-  assert_true 0 < Mruby::MRB_GC_ARENA_SIZE
+assert 'MrbState::MRB_GC_ARENA_SIZE' do
+  assert_true 0 < MrbState::MRB_GC_ARENA_SIZE
 end
 
-assert 'Mruby.nan_boxing?' do
-  assert_include [true,false], Mruby.nan_boxing?
+assert 'MrbState.nan_boxing?' do
+  assert_include [true,false], MrbState.nan_boxing?
 end
 
-assert 'Mruby.live' do
-  assert_true 0 < Mruby.live
+assert 'MrbState.live' do
+  assert_true 0 < MrbState.live
 end
 
-assert 'Mruby.gc_live_after_mark' do
-  assert_true 0 < Mruby.gc_live_after_mark
+assert 'MrbState.gc_live_after_mark' do
+  assert_true 0 < MrbState.gc_live_after_mark
 end
 
-assert 'Mruby.gc_threshold' do
-  assert_true 0 < Mruby.gc_threshold
+assert 'MrbState.gc_threshold' do
+  assert_true 0 < MrbState.gc_threshold
 end
 
-assert 'Mruby.gc_interval_ratio' do
-  assert_true 0 < Mruby.gc_interval_ratio
+assert 'MrbState.gc_interval_ratio' do
+  assert_true 0 < MrbState.gc_interval_ratio
 end
 
-assert 'Mruby.gc_step_ratio' do
-  assert_true 0 < Mruby.gc_step_ratio
+assert 'MrbState.gc_step_ratio' do
+  assert_true 0 < MrbState.gc_step_ratio
 end
