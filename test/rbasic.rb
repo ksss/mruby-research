@@ -10,6 +10,10 @@ assert 'Object#to_RBasic' do
   assert_equal Object, r.class.superclass
 end
 
+assert 'MrbRBasic.ttlist' do
+  assert_true MrbRBasic.ttlist.has_key?("MRB_TT_ARRAY")
+end
+
 assert 'MrbRBasic#tt' do
   r = [1,2,3].to_RBasic
   assert_equal "MRB_TT_ARRAY", r.tt

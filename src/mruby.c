@@ -78,6 +78,18 @@ color2str(uint32_t color)
 }
 
 static mrb_value
+rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value h = mrb_hash_new(mrb);
+  struct vtypes *vs;
+
+  for (vs = vtypelist; vs->name; vs++) {
+    mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, vs->name), mrb_fixnum_value(vs->tt));
+  }
+  return h;
+}
+
+static mrb_value
 rbasic_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj;
@@ -188,6 +200,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   struct RClass *rclass = mrb_define_class(mrb, "MrbRClass", rbasic);
   struct RClass *rstring = mrb_define_class(mrb, "MrbRString", rbasic);
 
+  mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rbasic, "tt", rbasic_tt, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "color", rbasic_color, MRB_ARGS_NONE());
