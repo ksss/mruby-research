@@ -2,6 +2,14 @@ assert 'MrbState::MRB_GC_ARENA_SIZE' do
   assert_true 0 < MrbState::MRB_GC_ARENA_SIZE
 end
 
+assert 'MrbState::MRB_INT_MIN' do
+  assert_true MrbState::MRB_INT_MIN < 0
+end
+
+assert 'MrbState::MRB_INT_MAX' do
+  assert_true 0 < MrbState::MRB_INT_MAX
+end
+
 assert 'MrbState.nan_boxing?' do
   assert_include [true,false], MrbState.nan_boxing?
 end
