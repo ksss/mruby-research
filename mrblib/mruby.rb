@@ -1,13 +1,13 @@
 class Object
   def to_RBasic
-    MrbRBasic.new(self)
+    Mrb::RBasic.new(self)
   end
 
   def to_RClass
-    MrbRClass.new(self)
+    Mrb::RClass.new(self)
   end
 
   def to_RString
-    MrbRString.new(self)
+    Mrb::RString.new(self)
   end
 end
