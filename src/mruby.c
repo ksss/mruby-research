@@ -21,6 +21,12 @@ mrb_class_s_nan_boxing_p(mrb_state *mrb, mrb_value mod)
 #endif
 }
 
+static mrb_value
+mrb_class_s_live_p(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(mrb->live);
+}
+
 struct vtypes {
   enum mrb_vtype tt;
   const char *name;
@@ -212,6 +218,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
 
   mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live_p, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
