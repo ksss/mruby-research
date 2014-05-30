@@ -146,7 +146,7 @@ rclass_initialize(mrb_state *mrb, mrb_value self)
     case MRB_TT_MODULE:
       break;
     default:
-      mrb_raisef(mrb, E_ARGUMENT_ERROR, "MrbRClass can not set %S", obj);
+      mrb_raisef(mrb, E_ARGUMENT_ERROR, "MrubyRClass can not set %S", obj);
   }
   mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
@@ -167,7 +167,7 @@ rstring_initialize(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "o", &obj);
   if (mrb_type(obj) != MRB_TT_STRING)
-    mrb_raisef(mrb, E_ARGUMENT_ERROR, "MrbRString can not set %S", obj);
+    mrb_raisef(mrb, E_ARGUMENT_ERROR, "MrubyRString can not set %S", obj);
   mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
@@ -206,7 +206,7 @@ rstring_capa(mrb_state *mrb, mrb_value self)
 
 void
 mrb_mruby_mruby_gem_init(mrb_state* mrb) {
-  struct RClass *mrb_class = mrb_define_module(mrb, "Mrb");
+  struct RClass *mrb_class = mrb_define_module(mrb, "Mruby");
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);

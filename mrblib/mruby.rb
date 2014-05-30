@@ -1,13 +1,13 @@
 class Object
   def to_RBasic
-    Mrb::RBasic.new(self)
+    Mruby::RBasic.new(self)
   end
 
   def to_RClass
-    Mrb::RClass.new(self)
+    Mruby::RClass.new(self)
   end
 
   def to_RString
-    Mrb::RString.new(self)
+    Mruby::RString.new(self)
   end
 end
