@@ -51,6 +51,18 @@ mrb_class_s_gc_step_ratio(mrb_state *mrb, mrb_value mod)
   return mrb_fixnum_value(mrb->gc_step_ratio);
 }
 
+static mrb_value
+mrb_class_s_majorgc_old_threshold(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(mrb->majorgc_old_threshold);
+}
+
+static mrb_value
+mrb_class_s_symidx(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(mrb->symidx);
+}
+
 struct vtypes {
   enum mrb_vtype tt;
   const char *name;
@@ -248,6 +260,8 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_class_method(mrb, mrb_class, "gc_threshold", mrb_class_s_gc_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_interval_ratio", mrb_class_s_gc_interval_ratio, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_step_ratio", mrb_class_s_gc_step_ratio, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
