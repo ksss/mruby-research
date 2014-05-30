@@ -11,6 +11,16 @@
 #include <mruby/class.h>
 #include <mruby/khash.h>
 
+static mrb_value
+mrb_class_s_nan_boxing_p(mrb_state *mrb, mrb_value mod)
+{
+#ifdef MRB_NAN_BOXING
+  return mrb_true_value();
+#else
+  return mrb_false_value();
+#endif
+}
+
 struct vtypes {
   enum mrb_vtype tt;
   const char *name;
@@ -196,9 +206,12 @@ rstring_capa(mrb_state *mrb, mrb_value self)
 
 void
 mrb_mruby_mruby_gem_init(mrb_state* mrb) {
+  struct RClass *mrb_class = mrb_define_module(mrb, "Mrb");
   struct RClass *rbasic = mrb_define_class(mrb, "MrbRBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class(mrb, "MrbRClass", rbasic);
   struct RClass *rstring = mrb_define_class(mrb, "MrbRString", rbasic);
+
+  mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
