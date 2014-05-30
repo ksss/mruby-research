@@ -28,6 +28,18 @@ mrb_class_s_live(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
+mrb_class_s_gc_live_after_mark(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(mrb->gc_live_after_mark);
+}
+
+static mrb_value
+mrb_class_s_gc_threshold(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(mrb->gc_threshold);
+}
+
+static mrb_value
 mrb_class_s_gc_interval_ratio(mrb_state *mrb, mrb_value mod)
 {
   return mrb_fixnum_value(mrb->gc_interval_ratio);
@@ -232,6 +244,8 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_const(mrb, mrb_class, "MRB_GC_ARENA_SIZE", mrb_fixnum_value(MRB_GC_ARENA_SIZE));
   mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "gc_live_after_mark", mrb_class_s_gc_live_after_mark, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "gc_threshold", mrb_class_s_gc_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_interval_ratio", mrb_class_s_gc_interval_ratio, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_step_ratio", mrb_class_s_gc_step_ratio, MRB_ARGS_NONE());
 

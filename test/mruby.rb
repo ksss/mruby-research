@@ -10,6 +10,14 @@ assert 'Mruby.live' do
   assert_true 0 < Mruby.live
 end
 
+assert 'Mruby.gc_live_after_mark' do
+  assert_true 0 < Mruby.gc_live_after_mark
+end
+
+assert 'Mruby.gc_threshold' do
+  assert_true 0 < Mruby.gc_threshold
+end
+
 assert 'Mruby.gc_interval_ratio' do
   assert_true 0 < Mruby.gc_interval_ratio
 end
