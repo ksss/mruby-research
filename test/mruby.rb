@@ -34,10 +34,14 @@ assert 'MrbState.gc_step_ratio' do
   assert_true 0 < MrbState.gc_step_ratio
 end
 
-assert 'MrbState.symidx' do
+assert 'MrbState.majorgc_old_threshold' do
   assert_true 0 < MrbState.majorgc_old_threshold
 end
 
 assert 'MrbState.symidx' do
   assert_kind_of Fixnum, MrbState.symidx
+end
+
+assert 'MrbState.size' do
+  assert_kind_of Fixnum, MrbState.size
 end

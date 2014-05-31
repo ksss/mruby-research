@@ -83,6 +83,18 @@ mrb_class_s_symidx(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
+mrb_class_s_size(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(sizeof(mrb_state));
+}
+
+static mrb_value
+mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(sizeof(mrb_value));
+}
+
+static mrb_value
 mrb_value_class_i(mrb_state *mrb, mrb_value mod)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
@@ -175,6 +187,12 @@ rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
+rbasic_s_size(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(sizeof(struct RBasic));
+}
+
+static mrb_value
 rbasic_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj;
@@ -211,6 +229,12 @@ rbasic_flags(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+rclass_s_size(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(sizeof(struct RClass));
+}
+
+static mrb_value
 rclass_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj;
@@ -233,6 +257,12 @@ rclass_super(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_obj_value(mrb_class_ptr(obj)->super);
+}
+
+static mrb_value
+rstring_s_size(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(sizeof(struct RString));
 }
 
 static mrb_value
@@ -298,21 +328,26 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_class_method(mrb, mrb_class, "gc_step_ratio", mrb_class_s_gc_step_ratio, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "size", mrb_class_s_size, MRB_ARGS_NONE());
 
+  mrb_define_class_method(mrb, mrb_value_class, "size", mrb_value_class_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_value_class, "i", mrb_value_class_i, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "f", mrb_value_class_f, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, rbasic, "size", rbasic_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rbasic, "tt", rbasic_tt, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "color", rbasic_color, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "flags", rbasic_flags, MRB_ARGS_NONE());
 
+  mrb_define_class_method(mrb, rclass, "size", rclass_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, rclass, "initialize", rclass_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rclass, "super", rclass_super, MRB_ARGS_NONE());
 
   mrb_define_const(mrb, rstring, "RSTRING_EMBED_LEN_MAX", mrb_fixnum_value(RSTRING_EMBED_LEN_MAX));
+  mrb_define_class_method(mrb, rstring, "size", rstring_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, rstring, "initialize", rstring_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rstring, "shared?", rstring_shared_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rstring, "nofree?", rstring_nofree_p, MRB_ARGS_NONE());

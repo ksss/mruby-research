@@ -12,6 +12,10 @@ assert 'Object#to_RClass' do
   assert_raise(ArgumentError){ [].to_RClass }
 end
 
+assert 'MrbState::RClass.size' do
+  assert_true 0 < MrbState::RClass.size
+end
+
 assert 'MrbState::RClass#super' do
   r = Class.new.to_RClass
   assert_equal Object, r.super

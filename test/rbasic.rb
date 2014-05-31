@@ -10,6 +10,10 @@ assert 'Object#to_RBasic' do
   assert_equal Object, r.class.superclass
 end
 
+assert 'MrbState::RBasic.size' do
+  assert_true 0 < MrbState::RBasic.size
+end
+
 assert 'MrbState::RBasic.ttlist' do
   assert_true MrbState::RBasic.ttlist.has_key?("MRB_TT_ARRAY")
 end

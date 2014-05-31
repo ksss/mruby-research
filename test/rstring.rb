@@ -16,6 +16,10 @@ assert 'MrbState::RString::RSTRING_EMBED_LEN_MAX' do
   assert_true 0 < MrbState::RString::RSTRING_EMBED_LEN_MAX
 end
 
+assert 'MrbState::RString.size' do
+  assert_true 0 < MrbState::RString.size
+end
+
 assert 'MrbState::RString#shared?' do
   assert_false "foo".to_RString.shared?
   assert_true "fooooooooooooooooooooooooooooooooooooooooooo".dup.to_RString.shared?

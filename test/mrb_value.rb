@@ -10,6 +10,10 @@ assert 'Object#to_mrb_value' do
   assert_equal Object, r.class.superclass
 end
 
+assert 'MrbState::MrbValue.size' do
+  assert_true 0 < MrbState::MrbValue.size
+end
+
 assert 'MrbState::MrbValue#i' do
   r = 123.to_mrb_value
   assert_equal 123, r.i
