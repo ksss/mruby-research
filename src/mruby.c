@@ -12,6 +12,16 @@
 #include <mruby/khash.h>
 
 static mrb_value
+mrb_class_s_use_float_p(mrb_state *mrb, mrb_value mod)
+{
+#ifdef MRB_USE_FLOAT
+  return mrb_true_value();
+#else
+  return mrb_false_value();
+#endif
+}
+
+static mrb_value
 mrb_class_s_nan_boxing_p(mrb_state *mrb, mrb_value mod)
 {
 #ifdef MRB_NAN_BOXING
@@ -282,6 +292,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
+  mrb_define_class_method(mrb, mrb_class, "use_float?", mrb_class_s_use_float_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "word_boxing?", mrb_class_s_word_boxing_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live, MRB_ARGS_NONE());
