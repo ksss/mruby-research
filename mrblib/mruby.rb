@@ -1,4 +1,8 @@
 class Object
+  def to_mrb_value
+    MrbState::MrbValue.new(self)
+  end
+
   def to_RBasic
     MrbState::RBasic.new(self)
   end

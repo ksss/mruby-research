@@ -73,6 +73,20 @@ mrb_class_s_symidx(mrb_state *mrb, mrb_value mod)
   return mrb_fixnum_value(mrb->symidx);
 }
 
+static mrb_value
+mrb_value_class_i(mrb_state *mrb, mrb_value mod)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  return mrb_fixnum_value(mrb_fixnum(obj));
+}
+
+static mrb_value
+mrb_value_class_f(mrb_state *mrb, mrb_value mod)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  return mrb_float_value(mrb, mrb_float(obj));
+}
+
 struct vtypes {
   enum mrb_vtype tt;
   const char *name;
@@ -259,6 +273,7 @@ rstring_capa(mrb_state *mrb, mrb_value self)
 void
 mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
+  struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
@@ -275,6 +290,10 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_class_method(mrb, mrb_class, "gc_step_ratio", mrb_class_s_gc_step_ratio, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, mrb_value_class, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, mrb_value_class, "i", mrb_value_class_i, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_value_class, "f", mrb_value_class_f, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_method(mrb, rbasic, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
