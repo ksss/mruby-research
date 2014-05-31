@@ -2,6 +2,10 @@ assert 'MrbState::MRB_GC_ARENA_SIZE' do
   assert_true 0 < MrbState::MRB_GC_ARENA_SIZE
 end
 
+assert 'MrbState::MRB_INT_BIT' do
+  assert_true 16 <= MrbState::MRB_INT_BIT && MrbState::MRB_INT_BIT <= 64
+end
+
 assert 'MrbState::MRB_INT_MIN' do
   assert_true MrbState::MRB_INT_MIN < 0
 end
