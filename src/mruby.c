@@ -22,6 +22,16 @@ mrb_class_s_nan_boxing_p(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
+mrb_class_s_word_boxing_p(mrb_state *mrb, mrb_value mod)
+{
+#ifdef MRB_WORD_BOXING
+  return mrb_true_value();
+#else
+  return mrb_false_value();
+#endif
+}
+
+static mrb_value
 mrb_class_s_live(mrb_state *mrb, mrb_value mod)
 {
   return mrb_fixnum_value(mrb->live);
@@ -257,6 +267,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
   mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "word_boxing?", mrb_class_s_word_boxing_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_live_after_mark", mrb_class_s_gc_live_after_mark, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_threshold", mrb_class_s_gc_threshold, MRB_ARGS_NONE());

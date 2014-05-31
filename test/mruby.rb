@@ -14,6 +14,10 @@ assert 'MrbState.nan_boxing?' do
   assert_include [true,false], MrbState.nan_boxing?
 end
 
+assert 'MrbState.word_boxing?' do
+  assert_include [true,false], MrbState.word_boxing?
+end
+
 assert 'MrbState.live' do
   assert_true 0 < MrbState.live
 end
