@@ -6,6 +6,10 @@ assert 'MrbState::MRB_FUNCALL_ARGC_MAX' do
   assert_true 0 < MrbState::MRB_FUNCALL_ARGC_MAX
 end
 
+assert 'MrbState::MRB_HEAP_PAGE_SIZE' do
+  assert_true 0 < MrbState::MRB_HEAP_PAGE_SIZE
+end
+
 assert 'MrbState::MRB_INT_BIT' do
   assert_include [16,32,64], MrbState::MRB_INT_BIT
 end

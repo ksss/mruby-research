@@ -11,6 +11,13 @@
 #include <mruby/class.h>
 #include <mruby/khash.h>
 
+#ifndef MRB_FUNCALL_ARGC_MAX
+# define MRB_FUNCALL_ARGC_MAX 16 /* default value from mruby/src/vm.c */
+#endif
+#ifndef MRB_HEAP_PAGE_SIZE
+# define MRB_HEAP_PAGE_SIZE 1024 /* default value from mruby/src/vm.c */
+#endif
+
 static mrb_value
 mrb_class_s_use_float_p(mrb_state *mrb, mrb_value mod)
 {
@@ -289,11 +296,8 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
 
   mrb_define_const(mrb, mrb_class, "MRB_GC_ARENA_SIZE", mrb_fixnum_value(MRB_GC_ARENA_SIZE));
-#ifdef MRB_FUNCALL_ARGC_MAX
   mrb_define_const(mrb, mrb_class, "MRB_FUNCALL_ARGC_MAX", mrb_fixnum_value(MRB_FUNCALL_ARGC_MAX));
-#else
-  mrb_define_const(mrb, mrb_class, "MRB_FUNCALL_ARGC_MAX", mrb_fixnum_value(16));
-#endif
+  mrb_define_const(mrb, mrb_class, "MRB_HEAP_PAGE_SIZE", mrb_fixnum_value(MRB_HEAP_PAGE_SIZE));
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
