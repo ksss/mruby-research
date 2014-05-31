@@ -34,6 +34,10 @@ assert 'MrbState.word_boxing?' do
   assert_include [true,false], MrbState.word_boxing?
 end
 
+assert 'MrbState.use_iv_seglist?' do
+  assert_include [true,false], MrbState.use_iv_seglist?
+end
+
 assert 'MrbState.live' do
   assert_true 0 < MrbState.live
 end
