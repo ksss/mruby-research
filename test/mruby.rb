@@ -1,4 +1,4 @@
-assert 'MrbState.conf' do
+assert 'MrbState.mrbconf' do
   assert_true MrbState.mrbconf.has_key?("MRB_NAN_BOXING")
 end
 
