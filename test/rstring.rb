@@ -3,13 +3,13 @@ assert 'MrbState::RString.new' do
   assert_equal MrbState::RString, r.class
   assert_equal MrbState::RBasic, r.class.superclass
   assert_equal "MRB_TT_STRING", r.tt
+  assert_raise(ArgumentError){ MrbState::RString.new(1) }
 end
 
 assert 'Object#to_RString' do
   r = "foo".to_RString
   assert_equal MrbState::RString, r.class
   assert_equal MrbState::RBasic, r.class.superclass
-  assert_raise(ArgumentError){ [].to_RString }
 end
 
 assert 'MrbState::RString::RSTRING_EMBED_LEN_MAX' do

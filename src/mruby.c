@@ -310,7 +310,8 @@ rstring_capa(mrb_state *mrb, mrb_value self)
 }
 
 void
-mrb_mruby_mruby_gem_init(mrb_state* mrb) {
+mrb_mruby_mruby_gem_init(mrb_state* mrb)
+{
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
   struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
