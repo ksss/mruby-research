@@ -289,6 +289,11 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
 
   mrb_define_const(mrb, mrb_class, "MRB_GC_ARENA_SIZE", mrb_fixnum_value(MRB_GC_ARENA_SIZE));
+#ifdef MRB_FUNCALL_ARGC_MAX
+  mrb_define_const(mrb, mrb_class, "MRB_FUNCALL_ARGC_MAX", mrb_fixnum_value(MRB_FUNCALL_ARGC_MAX));
+#else
+  mrb_define_const(mrb, mrb_class, "MRB_FUNCALL_ARGC_MAX", mrb_fixnum_value(16));
+#endif
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
