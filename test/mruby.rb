@@ -1,13 +1,5 @@
-assert 'MrbState::MRB_GC_ARENA_SIZE' do
-  assert_true 0 < MrbState::MRB_GC_ARENA_SIZE
-end
-
-assert 'MrbState::MRB_FUNCALL_ARGC_MAX' do
-  assert_true 0 < MrbState::MRB_FUNCALL_ARGC_MAX
-end
-
-assert 'MrbState::MRB_HEAP_PAGE_SIZE' do
-  assert_true 0 < MrbState::MRB_HEAP_PAGE_SIZE
+assert 'MrbState.conf' do
+  assert_true MrbState.mrbconf.has_key?("MRB_NAN_BOXING")
 end
 
 assert 'MrbState::MRB_INT_BIT' do
@@ -20,30 +12,6 @@ end
 
 assert 'MrbState::MRB_INT_MAX' do
   assert_true 0 < MrbState::MRB_INT_MAX
-end
-
-assert 'MrbState::MRB_IVHASH_INIT_SIZE' do
-  assert_true 0 < MrbState::MRB_IVHASH_INIT_SIZE
-end
-
-assert 'MrbState::KHASH_DEFAULT_SIZE' do
-  assert_true 0 < MrbState::KHASH_DEFAULT_SIZE
-end
-
-assert 'MrbState.use_float?' do
-  assert_include [true,false], MrbState.use_float?
-end
-
-assert 'MrbState.nan_boxing?' do
-  assert_include [true,false], MrbState.nan_boxing?
-end
-
-assert 'MrbState.word_boxing?' do
-  assert_include [true,false], MrbState.word_boxing?
-end
-
-assert 'MrbState.use_iv_seglist?' do
-  assert_include [true,false], MrbState.use_iv_seglist?
 end
 
 assert 'MrbState.live' do

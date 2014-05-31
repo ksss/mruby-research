@@ -10,55 +10,34 @@
 #include <mruby/variable.h>
 #include <mruby/class.h>
 #include <mruby/khash.h>
-
-#ifndef MRB_FUNCALL_ARGC_MAX
-# define MRB_FUNCALL_ARGC_MAX 16 /* default value from mruby/src/vm.c */
-#endif
-#ifndef MRB_HEAP_PAGE_SIZE
-# define MRB_HEAP_PAGE_SIZE 1024 /* default value from mruby/src/vm.c */
-#endif
-#ifndef MRB_IVHASH_INIT_SIZE
-# define MRB_IVHASH_INIT_SIZE 8 /* default value from mruby/src/variable.c */
-#endif
+#include "defmrbconf.h"
 
 static mrb_value
-mrb_class_s_use_float_p(mrb_state *mrb, mrb_value mod)
+mrb_class_s_mrbconf(mrb_state *mrb, mrb_value mod)
 {
-#ifdef MRB_USE_FLOAT
-  return mrb_true_value();
-#else
-  return mrb_false_value();
-#endif
-}
-
-static mrb_value
-mrb_class_s_nan_boxing_p(mrb_state *mrb, mrb_value mod)
-{
-#ifdef MRB_NAN_BOXING
-  return mrb_true_value();
-#else
-  return mrb_false_value();
-#endif
-}
-
-static mrb_value
-mrb_class_s_word_boxing_p(mrb_state *mrb, mrb_value mod)
-{
-#ifdef MRB_WORD_BOXING
-  return mrb_true_value();
-#else
-  return mrb_false_value();
-#endif
-}
-
-static mrb_value
-mrb_class_s_use_iv_seglist_p(mrb_state *mrb, mrb_value mod)
-{
-#ifdef MRB_USE_IV_SEGLIST
-  return mrb_true_value();
-#else
-  return mrb_false_value();
-#endif
+  mrb_value h = mrb_hash_new(mrb);
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_USE_FLOAT"), mrb_bool_value(DEF_MRB_USE_FLOAT));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_INT16"), mrb_bool_value(DEF_MRB_INT16));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_INT64"), mrb_bool_value(DEF_MRB_INT64));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_NAN_BOXING"), mrb_bool_value(DEF_MRB_NAN_BOXING));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_ENDIAN_BIG"), mrb_bool_value(DEF_MRB_ENDIAN_BIG));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_WORD_BOXING"), mrb_bool_value(DEF_MRB_WORD_BOXING));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_FUNCALL_ARGC_MAX"), mrb_fixnum_value(MRB_FUNCALL_ARGC_MAX));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_HEAP_PAGE_SIZE"), mrb_fixnum_value(MRB_HEAP_PAGE_SIZE));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_USE_IV_SEGLIST"), mrb_bool_value(DEF_MRB_USE_IV_SEGLIST));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_IVHASH_INIT_SIZE"), mrb_fixnum_value(MRB_IVHASH_INIT_SIZE));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_GC_TURN_OFF_GENERATIONAL"), mrb_bool_value(DEF_MRB_GC_TURN_OFF_GENERATIONAL));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "KHASH_DEFAULT_SIZE"), mrb_fixnum_value(KHASH_DEFAULT_SIZE));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "POOL_ALIGNMENT"), mrb_fixnum_value(POOL_ALIGNMENT));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "POOL_PAGE_SIZE"), mrb_fixnum_value(POOL_PAGE_SIZE));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_STR_BUF_MIN_SIZE"), mrb_fixnum_value(MRB_STR_BUF_MIN_SIZE));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_GC_ARENA_SIZE"), mrb_fixnum_value(MRB_GC_ARENA_SIZE));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "MRB_GC_FIXED_ARENA"), mrb_bool_value(DEF_MRB_GC_FIXED_ARENA));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "ENABLE_STDIO"), mrb_bool_value(DEF_ENABLE_STDIO));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "DISABLE_STDIO"), mrb_bool_value(DEF_DISABLE_STDIO));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "ENABLE_DEBUG"), mrb_bool_value(DEF_ENABLE_DEBUG));
+  mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, "DISABLE_DEBUG"), mrb_bool_value(DEF_DISABLE_DEBUG));
+  return h;
 }
 
 static mrb_value
@@ -308,18 +287,10 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
 
-  mrb_define_const(mrb, mrb_class, "MRB_GC_ARENA_SIZE", mrb_fixnum_value(MRB_GC_ARENA_SIZE));
-  mrb_define_const(mrb, mrb_class, "MRB_FUNCALL_ARGC_MAX", mrb_fixnum_value(MRB_FUNCALL_ARGC_MAX));
-  mrb_define_const(mrb, mrb_class, "MRB_HEAP_PAGE_SIZE", mrb_fixnum_value(MRB_HEAP_PAGE_SIZE));
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
-  mrb_define_const(mrb, mrb_class, "MRB_IVHASH_INIT_SIZE", mrb_fixnum_value(MRB_IVHASH_INIT_SIZE));
-  mrb_define_const(mrb, mrb_class, "KHASH_DEFAULT_SIZE", mrb_fixnum_value(KHASH_DEFAULT_SIZE));
-  mrb_define_class_method(mrb, mrb_class, "use_float?", mrb_class_s_use_float_p, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "word_boxing?", mrb_class_s_word_boxing_p, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "use_iv_seglist?", mrb_class_s_use_iv_seglist_p, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "mrbconf", mrb_class_s_mrbconf, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_live_after_mark", mrb_class_s_gc_live_after_mark, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_threshold", mrb_class_s_gc_threshold, MRB_ARGS_NONE());
