@@ -3,7 +3,7 @@ assert 'MrbState::MRB_GC_ARENA_SIZE' do
 end
 
 assert 'MrbState::MRB_INT_BIT' do
-  assert_true 16 <= MrbState::MRB_INT_BIT && MrbState::MRB_INT_BIT <= 64
+  assert_include [16,32,64], MrbState::MRB_INT_BIT
 end
 
 assert 'MrbState::MRB_INT_MIN' do
