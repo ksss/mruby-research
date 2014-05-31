@@ -17,6 +17,9 @@
 #ifndef MRB_HEAP_PAGE_SIZE
 # define MRB_HEAP_PAGE_SIZE 1024 /* default value from mruby/src/vm.c */
 #endif
+#ifndef MRB_IVHASH_INIT_SIZE
+# define MRB_IVHASH_INIT_SIZE 8 /* default value from mruby/src/variable.c */
+#endif
 
 static mrb_value
 mrb_class_s_use_float_p(mrb_state *mrb, mrb_value mod)
@@ -49,7 +52,7 @@ mrb_class_s_word_boxing_p(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
-mrb_class_s_use_iv_seglist(mrb_state *mrb, mrb_value mod)
+mrb_class_s_use_iv_seglist_p(mrb_state *mrb, mrb_value mod)
 {
 #ifdef MRB_USE_IV_SEGLIST
   return mrb_true_value();
@@ -311,10 +314,11 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
+  mrb_define_const(mrb, mrb_class, "MRB_IVHASH_INIT_SIZE", mrb_fixnum_value(MRB_IVHASH_INIT_SIZE));
   mrb_define_class_method(mrb, mrb_class, "use_float?", mrb_class_s_use_float_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "word_boxing?", mrb_class_s_word_boxing_p, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "use_iv_seglist?", mrb_class_s_use_iv_seglist, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "use_iv_seglist?", mrb_class_s_use_iv_seglist_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_live_after_mark", mrb_class_s_gc_live_after_mark, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "gc_threshold", mrb_class_s_gc_threshold, MRB_ARGS_NONE());

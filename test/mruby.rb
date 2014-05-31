@@ -22,6 +22,10 @@ assert 'MrbState::MRB_INT_MAX' do
   assert_true 0 < MrbState::MRB_INT_MAX
 end
 
+assert 'MrbState::MRB_IVHASH_INIT_SIZE' do
+  assert_true 0 < MrbState::MRB_IVHASH_INIT_SIZE
+end
+
 assert 'MrbState.use_float?' do
   assert_include [true,false], MrbState.use_float?
 end
