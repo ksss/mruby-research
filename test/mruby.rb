@@ -26,6 +26,10 @@ assert 'MrbState::MRB_IVHASH_INIT_SIZE' do
   assert_true 0 < MrbState::MRB_IVHASH_INIT_SIZE
 end
 
+assert 'MrbState::KHASH_DEFAULT_SIZE' do
+  assert_true 0 < MrbState::KHASH_DEFAULT_SIZE
+end
+
 assert 'MrbState.use_float?' do
   assert_include [true,false], MrbState.use_float?
 end

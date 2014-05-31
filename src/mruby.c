@@ -315,6 +315,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb) {
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
   mrb_define_const(mrb, mrb_class, "MRB_IVHASH_INIT_SIZE", mrb_fixnum_value(MRB_IVHASH_INIT_SIZE));
+  mrb_define_const(mrb, mrb_class, "KHASH_DEFAULT_SIZE", mrb_fixnum_value(KHASH_DEFAULT_SIZE));
   mrb_define_class_method(mrb, mrb_class, "use_float?", mrb_class_s_use_float_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "nan_boxing?", mrb_class_s_nan_boxing_p, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "word_boxing?", mrb_class_s_word_boxing_p, MRB_ARGS_NONE());
