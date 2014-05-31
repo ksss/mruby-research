@@ -85,13 +85,13 @@ mrb_class_s_symidx(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_class_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(mrb_state));
+  return mrb_fixnum_value((mrb_int)sizeof(mrb_state));
 }
 
 static mrb_value
 mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(mrb_value));
+  return mrb_fixnum_value((mrb_int)sizeof(mrb_value));
 }
 
 static mrb_value
@@ -189,7 +189,7 @@ rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
 static mrb_value
 rbasic_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RBasic));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RBasic));
 }
 
 static mrb_value
@@ -231,7 +231,7 @@ rbasic_flags(mrb_state *mrb, mrb_value self)
 static mrb_value
 rclass_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RClass));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RClass));
 }
 
 static mrb_value
@@ -262,7 +262,7 @@ rclass_super(mrb_state *mrb, mrb_value self)
 static mrb_value
 rstring_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RString));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RString));
 }
 
 static mrb_value
