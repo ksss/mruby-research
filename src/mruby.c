@@ -5,6 +5,7 @@
 #include <mruby.h>
 #include <mruby/value.h>
 #include <mruby/hash.h>
+#include <mruby/proc.h>
 #include <mruby/string.h>
 #include <mruby/array.h>
 #include <mruby/variable.h>
@@ -85,13 +86,13 @@ mrb_class_s_symidx(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_class_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value((mrb_int)sizeof(mrb_state));
+  return mrb_fixnum_value(sizeof(mrb_state));
 }
 
 static mrb_value
 mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value((mrb_int)sizeof(mrb_value));
+  return mrb_fixnum_value(sizeof(mrb_value));
 }
 
 static mrb_value
@@ -189,7 +190,7 @@ rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
 static mrb_value
 rbasic_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value((mrb_int)sizeof(struct RBasic));
+  return mrb_fixnum_value(sizeof(struct RBasic));
 }
 
 static mrb_value
@@ -231,7 +232,7 @@ rbasic_flags(mrb_state *mrb, mrb_value self)
 static mrb_value
 rclass_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value((mrb_int)sizeof(struct RClass));
+  return mrb_fixnum_value(sizeof(struct RClass));
 }
 
 static mrb_value
@@ -262,7 +263,7 @@ rclass_super(mrb_state *mrb, mrb_value self)
 static mrb_value
 rstring_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value((mrb_int)sizeof(struct RString));
+  return mrb_fixnum_value(sizeof(struct RString));
 }
 
 static mrb_value
@@ -309,6 +310,55 @@ rstring_capa(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(RSTRING_CAPA(obj));
 }
 
+static mrb_value
+rproc_s_size(mrb_state *mrb, mrb_value mod)
+{
+  return mrb_fixnum_value(sizeof(struct RProc));
+}
+
+static mrb_value
+rproc_initialize(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj, block;
+  mrb_int argc;
+
+  argc = mrb_get_args(mrb, "|o&", &obj, &block);
+  if (argc == 2) {
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "RProc can set only one object");
+  }
+  if (!mrb_nil_p(block)) {
+    obj = block;
+  }
+  if (mrb_type(obj) != MRB_TT_PROC)
+    mrb_raisef(mrb, E_ARGUMENT_ERROR, "RProc can not set %S", obj);
+  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  return self;
+}
+
+static mrb_value
+rproc_cfunc_p(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+
+  return mrb_bool_value(MRB_PROC_CFUNC_P(mrb_proc_ptr(obj)));
+}
+
+static mrb_value
+rproc_strict_p(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+
+  return mrb_bool_value(MRB_PROC_STRICT_P(mrb_proc_ptr(obj)));
+}
+
+static mrb_value
+rproc_target_class(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+
+  return mrb_obj_value(mrb_proc_ptr(obj)->target_class);
+}
+
 void
 mrb_mruby_mruby_gem_init(mrb_state* mrb)
 {
@@ -317,6 +367,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb)
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
+  struct RClass *rproc = mrb_define_class_under(mrb, mrb_class, "RProc", rbasic);
 
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
@@ -354,6 +405,12 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, rstring, "nofree?", rstring_nofree_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rstring, "embed?", rstring_embed_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rstring, "capa", rstring_capa, MRB_ARGS_NONE());
+
+  mrb_define_class_method(mrb, rproc, "size", rproc_s_size, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rproc, "initialize", rproc_initialize, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rproc, "cfunc?", rproc_cfunc_p, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rproc, "strict?", rproc_strict_p, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rproc, "target_class", rproc_target_class, MRB_ARGS_NONE());
 }
 
 void

@@ -19,3 +19,9 @@ class String
     MrbState::RString.new(self)
   end
 end
+
+class Proc
+  def to_RProc
+    MrbState::RProc.new(self)
+  end
+end
