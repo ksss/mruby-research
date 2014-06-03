@@ -514,6 +514,51 @@ mrb_irep_class_lines(mrb_state *mrb, mrb_value self)
   return a;
 }
 
+static mrb_value
+mrb_irep_class_ilen(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_fixnum_value(irep->ilen);
+}
+
+static mrb_value
+mrb_irep_class_plen(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_fixnum_value(irep->plen);
+}
+
+static mrb_value
+mrb_irep_class_slen(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_fixnum_value(irep->slen);
+}
+
+static mrb_value
+mrb_irep_class_rlen(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_fixnum_value(irep->rlen);
+}
+
+static mrb_value
+mrb_irep_class_refcnt(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_fixnum_value(irep->refcnt);
+}
+
 void
 mrb_mruby_mruby_gem_init(mrb_state* mrb)
 {
@@ -582,6 +627,11 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_irep_class, "lv", mrb_irep_class_lv, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_irep_class, "filename", mrb_irep_class_filename, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_irep_class, "lines", mrb_irep_class_lines, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "ilen", mrb_irep_class_ilen, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "plen", mrb_irep_class_plen, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "slen", mrb_irep_class_slen, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "rlen", mrb_irep_class_rlen, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "refcnt", mrb_irep_class_refcnt, MRB_ARGS_NONE());
 }
 
 void
