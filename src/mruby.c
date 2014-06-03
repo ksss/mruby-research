@@ -2,10 +2,12 @@
  * mruby-mruby
  */
 
+#include <stdio.h>
 #include <mruby.h>
 #include <mruby/value.h>
 #include <mruby/hash.h>
 #include <mruby/proc.h>
+#include <mruby/irep.h>
 #include <mruby/string.h>
 #include <mruby/array.h>
 #include <mruby/variable.h>
@@ -359,6 +361,159 @@ rproc_target_class(mrb_state *mrb, mrb_value self)
   return mrb_obj_value(mrb_proc_ptr(obj)->target_class);
 }
 
+static mrb_value
+rproc_irep(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  struct RClass *irep_class = mrb_class_get_under(mrb, mrb_obj_class(mrb, self), "MrbIrep");
+
+  return mrb_funcall(mrb, mrb_obj_value(irep_class), "new", 1, obj);
+}
+
+static mrb_value
+mrb_irep_class_initialize(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj, block;
+  mrb_int argc;
+
+  argc = mrb_get_args(mrb, "|o&", &obj, &block);
+  if (argc == 2) {
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "MrbIrep can set only one object");
+  }
+  if (!mrb_nil_p(block)) {
+    obj = block;
+  }
+  if (mrb_type(obj) != MRB_TT_PROC)
+    mrb_raisef(mrb, E_ARGUMENT_ERROR, "MrbIrep can not set %S", obj);
+  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  return self;
+}
+
+static mrb_value
+mrb_irep_class_nlocals(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+
+  return mrb_fixnum_value(mrb_proc_ptr(obj)->body.irep->nlocals);
+}
+
+static mrb_value
+mrb_irep_class_nregs(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+
+  return mrb_fixnum_value(mrb_proc_ptr(obj)->body.irep->nregs);
+}
+
+static mrb_value
+mrb_irep_class_flags(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+
+  return mrb_fixnum_value(mrb_proc_ptr(obj)->body.irep->flags);
+}
+
+static mrb_value
+mrb_irep_class_iseq(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+  mrb_value a = mrb_ary_new_capa(mrb, irep->ilen);
+  mrb_int i;
+
+  for (i = 0; i < irep->ilen; i++) {
+    mrb_ary_set(mrb, a, i, mrb_fixnum_value(irep->iseq[i]));
+  }
+  return a;
+}
+
+static mrb_value
+mrb_irep_class_pool(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_ary_new_from_values(mrb, irep->plen, irep->pool);
+}
+
+static mrb_value
+mrb_irep_class_syms(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+  mrb_value a = mrb_ary_new_capa(mrb, irep->slen);
+  mrb_int i;
+
+  for (i = 0; i < irep->slen; i++) {
+    mrb_ary_set(mrb, a, i, mrb_symbol_value(irep->syms[i]));
+  }
+  return a;
+}
+
+static mrb_value
+mrb_irep_class_reps(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+  mrb_value a = mrb_ary_new_capa(mrb, irep->slen);
+  struct RClass *irep_class = mrb_obj_class(mrb, self);
+  mrb_int i;
+
+  for (i = 0; i < irep->rlen; i++) {
+    struct RProc *proc = mrb_proc_new(mrb, irep->reps[i]);
+    mrb_value new_irep = mrb_funcall(mrb, mrb_obj_value(irep_class), "new", 1, mrb_obj_value(proc));
+    mrb_ary_set(mrb, a, i, new_irep);
+  }
+  return a;
+}
+
+static mrb_value
+mrb_irep_class_lv(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+  mrb_value a = mrb_ary_new_capa(mrb, irep->nlocals - 1);
+  mrb_int i;
+
+  if (!irep->lv)
+    return mrb_ary_new(mrb);
+
+  for (i = 0; i < irep->nlocals - 1; ++i) {
+    if (irep->lv[i].name) {
+      mrb_value h = mrb_hash_new(mrb);
+      mrb_hash_set(mrb, h, mrb_check_intern_cstr(mrb, "name"), mrb_symbol_value(irep->lv[i].name));
+      mrb_hash_set(mrb, h, mrb_check_intern_cstr(mrb, "r"), mrb_fixnum_value(irep->lv[i].r));
+      mrb_ary_set(mrb, a, i, h);
+    }
+  }
+  return a;
+}
+
+static mrb_value
+mrb_irep_class_filename(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+
+  return mrb_str_new_cstr(mrb, irep->filename);
+}
+
+static mrb_value
+mrb_irep_class_lines(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
+  mrb_int iseq_no;
+  mrb_value a = mrb_ary_new_capa(mrb, irep->ilen);
+
+  if (!irep->lines)
+    return a;
+  for (iseq_no = 0; iseq_no < irep->ilen; iseq_no++) {
+    mrb_ary_set(mrb, a, iseq_no, mrb_fixnum_value(irep->lines[iseq_no]));
+  }
+  return a;
+}
+
 void
 mrb_mruby_mruby_gem_init(mrb_state* mrb)
 {
@@ -368,6 +523,7 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb)
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
   struct RClass *rproc = mrb_define_class_under(mrb, mrb_class, "RProc", rbasic);
+  struct RClass *mrb_irep_class = mrb_define_class_under(mrb, rproc, "MrbIrep", mrb->object_class);
 
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
@@ -406,11 +562,26 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, rstring, "embed?", rstring_embed_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rstring, "capa", rstring_capa, MRB_ARGS_NONE());
 
+  mrb_define_const(mrb, rproc, "MRB_PROC_CFUNC", mrb_fixnum_value(MRB_PROC_CFUNC));
+  mrb_define_const(mrb, rproc, "MRB_PROC_STRICT", mrb_fixnum_value(MRB_PROC_STRICT));
   mrb_define_class_method(mrb, rproc, "size", rproc_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, rproc, "initialize", rproc_initialize, MRB_ARGS_NONE());
   mrb_define_method(mrb, rproc, "cfunc?", rproc_cfunc_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rproc, "strict?", rproc_strict_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rproc, "target_class", rproc_target_class, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rproc, "irep", rproc_irep, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, mrb_irep_class, "initialize", mrb_irep_class_initialize, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, mrb_irep_class, "nlocals", mrb_irep_class_nlocals, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "nregs", mrb_irep_class_nregs, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "flags", mrb_irep_class_flags, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "iseq", mrb_irep_class_iseq, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "pool", mrb_irep_class_pool, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "syms", mrb_irep_class_syms, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "reps", mrb_irep_class_reps, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "lv", mrb_irep_class_lv, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "filename", mrb_irep_class_filename, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_irep_class, "lines", mrb_irep_class_lines, MRB_ARGS_NONE());
 }
 
 void

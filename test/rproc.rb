@@ -32,3 +32,7 @@ end
 assert 'MrbState::RProc#target_class' do
   assert_equal Object, ->{}.to_RProc.target_class
 end
+
+assert 'MrbState::RProc#irep' do
+  assert_kind_of MrbState::RProc::MrbIrep, ->{}.to_RProc.irep
+end
