@@ -92,6 +92,23 @@ mrb_class_s_size(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
+mrb_class_s_stack_length(mrb_state *mrb, mrb_value mod)
+{
+  struct mrb_context *c = mrb->c;
+
+  return mrb_fixnum_value(c->stend - c->stbase);
+}
+
+static mrb_value
+mrb_class_s_ci_length(mrb_state *mrb, mrb_value mod)
+{
+  struct mrb_context *c = mrb->c;
+
+  return mrb_fixnum_value(c->ciend - c->cibase);
+}
+
+
+static mrb_value
 mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
 {
   return mrb_fixnum_value(sizeof(mrb_value));
@@ -582,6 +599,8 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "size", mrb_class_s_size, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "stack_length", mrb_class_s_stack_length, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "ci_length", mrb_class_s_ci_length, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, mrb_value_class, "size", mrb_value_class_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
