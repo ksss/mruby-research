@@ -92,23 +92,6 @@ mrb_class_s_size(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
-mrb_class_s_stack_length(mrb_state *mrb, mrb_value mod)
-{
-  struct mrb_context *c = mrb->c;
-
-  return mrb_fixnum_value(c->stend - c->stbase);
-}
-
-static mrb_value
-mrb_class_s_ci_length(mrb_state *mrb, mrb_value mod)
-{
-  struct mrb_context *c = mrb->c;
-
-  return mrb_fixnum_value(c->ciend - c->cibase);
-}
-
-
-static mrb_value
 mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
 {
   return mrb_fixnum_value(sizeof(mrb_value));
@@ -126,6 +109,22 @@ mrb_value_class_f(mrb_state *mrb, mrb_value mod)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   return mrb_float_value(mrb, mrb_float(obj));
+}
+
+static mrb_value
+mrb_class_s_stack_length(mrb_state *mrb, mrb_value mod)
+{
+  struct mrb_context *c = mrb->c;
+
+  return mrb_fixnum_value(c->stend - c->stbase);
+}
+
+static mrb_value
+mrb_class_s_ci_length(mrb_state *mrb, mrb_value mod)
+{
+  struct mrb_context *c = mrb->c;
+
+  return mrb_fixnum_value(c->ciend - c->cibase);
 }
 
 struct vtypes {
@@ -581,6 +580,7 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
 {
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
   struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
+  struct RClass *mrb_context_class = mrb_define_class_under(mrb, mrb_class, "MrbContext", mrb->object_class);
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
@@ -599,13 +599,14 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "size", mrb_class_s_size, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "stack_length", mrb_class_s_stack_length, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "ci_length", mrb_class_s_ci_length, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, mrb_value_class, "size", mrb_value_class_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_value_class, "i", mrb_value_class_i, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "f", mrb_value_class_f, MRB_ARGS_NONE());
+
+  mrb_define_class_method(mrb, mrb_context_class, "stack_length", mrb_class_s_stack_length, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_context_class, "ci_length", mrb_class_s_ci_length, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, rbasic, "size", rbasic_s_size, MRB_ARGS_NONE());

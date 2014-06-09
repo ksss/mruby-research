@@ -45,11 +45,3 @@ end
 assert 'MrbState.size' do
   assert_kind_of Fixnum, MrbState.size
 end
-
-assert 'MrbState.stack_length' do
-  assert_true 0 < MrbState.stack_length
-end
-
-assert 'MrbState.ci_length' do
-  assert_true 0 < MrbState.ci_length
-end
