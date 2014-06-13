@@ -1,5 +1,5 @@
 /**
- * mruby-mruby
+ * mruby-research
  */
 
 #include <stdio.h>
@@ -560,7 +560,7 @@ mrb_irep_class_refcnt(mrb_state *mrb, mrb_value self)
 }
 
 void
-mrb_mruby_mruby_gem_init(mrb_state* mrb)
+mrb_mruby_research_gem_init(mrb_state* mrb)
 {
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
   struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
@@ -635,5 +635,5 @@ mrb_mruby_mruby_gem_init(mrb_state* mrb)
 }
 
 void
-mrb_mruby_mruby_gem_final(mrb_state* mrb) {
+mrb_mruby_research_gem_final(mrb_state* mrb) {
 }

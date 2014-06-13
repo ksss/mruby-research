@@ -1,6 +1,6 @@
-# mruby-mruby
+# mruby-research
 
-mruby binding for mruby
+research for mruby
 
 ## Synopsis
 
@@ -29,7 +29,7 @@ Write in /mruby/build_config.rb
 
 ```ruby
 MRuby::Build.new do |conf|
-  conf.gem :github => 'ksss/mruby-mruby', :branch => 'master'
+  conf.gem :github => 'ksss/mruby-research', :branch => 'master'
 end
 ```
 
