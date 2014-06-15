@@ -5,14 +5,14 @@ assert 'MrbState::MrbContext.new' do
   assert_equal "MRB_TT_DATA", context.to_RBasic.tt
 end
 
-assert 'MrbState::MrbContext.root_c' do
-  root_c = MrbState::MrbContext.root_c
+assert 'MrbState.root_c' do
+  root_c = MrbState.root_c
 
   assert_equal MrbState::MrbContext, root_c.class
 end
 
-assert 'MrbState::MrbContext.c' do
-  c = MrbState::MrbContext.c
+assert 'MrbState.c' do
+  c = MrbState.c
 
   assert_equal MrbState::MrbContext, c.class
 end
