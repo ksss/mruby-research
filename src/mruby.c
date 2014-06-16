@@ -13,6 +13,7 @@
 #include <mruby/variable.h>
 #include <mruby/class.h>
 #include <mruby/khash.h>
+#include <mruby/data.h>
 #include "defmrbconf.h"
 
 static mrb_value
@@ -109,6 +110,89 @@ mrb_value_class_f(mrb_state *mrb, mrb_value mod)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   return mrb_float_value(mrb, mrb_float(obj));
+}
+
+void
+mrb_free_context_class(mrb_state *mrb, void *p)
+{
+}
+
+static const struct mrb_data_type mrb_context_type = { "Context", mrb_free_context_class };
+
+static mrb_value
+mrb_class_s_root_context(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = mrb->root_c;
+  struct RClass *mrb_context_class = mrb_class_get_under(mrb, mrb_class_ptr(self), "MrbContext");
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_context_class, &mrb_context_type, c));
+}
+
+static mrb_value
+mrb_class_s_current_context(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = mrb->c;
+  struct RClass *mrb_context_class = mrb_class_get_under(mrb, mrb_class_ptr(self), "MrbContext");
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_context_class, &mrb_context_type, c));
+}
+
+static mrb_value
+mrb_context_class_s_stack_length(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = mrb->c;
+
+  return mrb_fixnum_value(c->stend - c->stbase);
+}
+
+static mrb_value
+mrb_context_class_s_ci_length(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = mrb->c;
+
+  return mrb_fixnum_value(c->ciend - c->cibase);
+}
+
+static mrb_value
+mrb_context_class_initialize(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c;
+
+  DATA_TYPE(self) = &mrb_context_type;
+  c = mrb->c;
+  DATA_PTR(self) = c;
+  return self;
+}
+
+static mrb_value
+mrb_context_class_stack_length(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c;
+
+  c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_fixnum_value(c->stend - c->stbase);
+}
+
+static mrb_value
+mrb_context_class_ci_length(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c;
+
+  c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_fixnum_value(c->ciend - c->cibase);
+}
+
+static mrb_value
+mrb_context_class_eq(mrb_state *mrb, mrb_value self)
+{
+  mrb_value other;
+  struct mrb_context *c1, *c2;
+
+  mrb_get_args(mrb, "o", &other);
+  c1 = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  c2 = DATA_GET_PTR(mrb, other, &mrb_context_type, struct mrb_context);
+
+  return mrb_bool_value(c1 == c2);
 }
 
 struct vtypes {
@@ -564,6 +648,8 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
 {
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
   struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
+  struct RClass *mrb_context_class = mrb_define_class_under(mrb, mrb_class, "MrbContext", mrb->object_class);
+  MRB_SET_INSTANCE_TT(mrb_context_class, MRB_TT_DATA);
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
@@ -582,11 +668,20 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "size", mrb_class_s_size, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "root_c", mrb_class_s_root_context, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "c", mrb_class_s_current_context, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, mrb_value_class, "size", mrb_value_class_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_value_class, "i", mrb_value_class_i, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "f", mrb_value_class_f, MRB_ARGS_NONE());
+
+  mrb_define_class_method(mrb, mrb_context_class, "stack_length", mrb_context_class_s_stack_length, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_context_class, "ci_length", mrb_context_class_s_ci_length, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "initialize", mrb_context_class_initialize, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "stack_length", mrb_context_class_stack_length, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "ci_length", mrb_context_class_ci_length, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "==", mrb_context_class_eq, MRB_ARGS_REQ(1));
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, rbasic, "size", rbasic_s_size, MRB_ARGS_NONE());
