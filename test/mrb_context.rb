@@ -1,41 +1,15 @@
-assert 'MrbState::MrbContext.new' do
-  context = MrbState::MrbContext.new
-
-  assert_equal MrbState::MrbContext, context.class
-  assert_equal "MRB_TT_DATA", context.to_RBasic.tt
-end
-
 assert 'MrbState.root_c' do
-  root_c = MrbState.root_c
-
-  assert_equal MrbState::MrbContext, root_c.class
+  assert_kind_of MrbState::MrbContext, MrbState.root_c
 end
 
 assert 'MrbState.c' do
-  c = MrbState.c
-
-  assert_equal MrbState::MrbContext, c.class
-end
-
-assert 'MrbState.stack_length' do
-  assert_true 0 < MrbState::MrbContext.stack_length
-end
-
-assert 'MrbState.ci_length' do
-  assert_true 0 < MrbState::MrbContext.ci_length
-end
-
-assert 'MrbState::MrbContext#stack_length' do
-  assert_true 0 < MrbState::MrbContext.new.stack_length
+  assert_kind_of MrbState::MrbContext, MrbState.c
 end
 
 assert 'MrbState::MrbContext#ci_length' do
-  assert_true 0 < MrbState::MrbContext.new.ci_length
+  assert_true 0 < MrbState.root_c.ci_length
 end
 
-assert 'MrbState::MrbContext#==' do
-  c1 = MrbState::MrbContext.new
-  c2 = MrbState::MrbContext.new
-  assert_include [true, false], c1 == c2
-  assert_true c1 == c2
+assert 'MrbState::MrbContext#stack_length' do
+  assert_true 0 < MrbState.root_c.stack_length
 end
