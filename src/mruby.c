@@ -643,6 +643,25 @@ mrb_irep_class_refcnt(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(irep->refcnt);
 }
 
+static mrb_value
+renv_initialize(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj, block;
+  mrb_int argc;
+
+  argc = mrb_get_args(mrb, "|o&", &obj, &block);
+  if (argc == 2) {
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "REnv can set only one object");
+  }
+  if (!mrb_nil_p(block)) {
+    obj = block;
+  }
+  if (mrb_type(obj) != MRB_TT_PROC)
+    mrb_raisef(mrb, E_ARGUMENT_ERROR, "REnv can not set %S", obj);
+  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  return self;
+}
+
 void
 mrb_mruby_research_gem_init(mrb_state* mrb)
 {
@@ -654,6 +673,7 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
   struct RClass *rproc = mrb_define_class_under(mrb, mrb_class, "RProc", rbasic);
+  struct RClass *renv = mrb_define_class_under(mrb, mrb_class, "REnv", rbasic);
   struct RClass *mrb_irep_class = mrb_define_class_under(mrb, rproc, "MrbIrep", mrb->object_class);
 
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
@@ -727,6 +747,8 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_irep_class, "slen", mrb_irep_class_slen, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_irep_class, "rlen", mrb_irep_class_rlen, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_irep_class, "refcnt", mrb_irep_class_refcnt, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, renv, "initialize", renv_initialize, MRB_ARGS_REQ(1));
 }
 
 void

@@ -24,4 +24,8 @@ class Proc
   def to_RProc
     MrbState::RProc.new(self)
   end
+
+  def to_REnv
+    MrbState::REnv.new(self)
+  end
 end
