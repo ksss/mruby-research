@@ -26,3 +26,7 @@ end
 assert 'MrbState::MrbContext#stack_length' do
   assert_true 0 < MrbState.root_c.stack_length
 end
+
+assert 'MrbState::MrbContext#status' do
+  assert_equal "MRB_FIBER_RUNNING", MrbState.root_c.status
+end

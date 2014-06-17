@@ -16,6 +16,96 @@
 #include <mruby/data.h>
 #include "defmrbconf.h"
 
+struct vtypes {
+  enum mrb_vtype tt;
+  const char *name;
+} vtypelist [] = {
+  {MRB_TT_FALSE,     "MRB_TT_FALSE"},
+  {MRB_TT_FREE,      "MRB_TT_FREE"},
+  {MRB_TT_TRUE,      "MRB_TT_TRUE"},
+  {MRB_TT_FIXNUM,    "MRB_TT_FIXNUM"},
+  {MRB_TT_SYMBOL,    "MRB_TT_SYMBOL"},
+  {MRB_TT_UNDEF,     "MRB_TT_UNDEF"},
+  {MRB_TT_FLOAT,     "MRB_TT_FLOAT"},
+  {MRB_TT_CPTR,      "MRB_TT_CPTR"},
+  {MRB_TT_OBJECT,    "MRB_TT_OBJECT"},
+  {MRB_TT_CLASS,     "MRB_TT_CLASS"},
+  {MRB_TT_MODULE,    "MRB_TT_MODULE"},
+  {MRB_TT_ICLASS,    "MRB_TT_ICLASS"},
+  {MRB_TT_SCLASS,    "MRB_TT_SCLASS"},
+  {MRB_TT_PROC,      "MRB_TT_PROC"},
+  {MRB_TT_ARRAY,     "MRB_TT_ARRAY"},
+  {MRB_TT_HASH,      "MRB_TT_HASH"},
+  {MRB_TT_STRING,    "MRB_TT_STRING"},
+  {MRB_TT_RANGE,     "MRB_TT_RANGE"},
+  {MRB_TT_EXCEPTION, "MRB_TT_EXCEPTION"},
+  {MRB_TT_FILE,      "MRB_TT_FILE"},
+  {MRB_TT_ENV,       "MRB_TT_ENV"},
+  {MRB_TT_DATA,      "MRB_TT_DATA"},
+  {MRB_TT_FIBER,     "MRB_TT_FIBER"},
+  {MRB_TT_MAXDEFINE, NULL},
+};
+
+struct colors {
+  uint32_t color:3;
+  const char *name;
+} colorlist [] = {
+  {0, "MRB_GC_GRAY"},
+  {1, "MRB_GC_WHITE_A"},
+  {2, "MRB_GC_WHITE_B"},
+  {3, "MRB_GC_WHITES"},
+  {4, "MRB_GC_BLACK"},
+  {5, NULL},
+};
+
+struct fiber_states {
+  enum mrb_fiber_state state;
+  const char *name;
+} fiber_state_list [] = {
+  {MRB_FIBER_CREATED, "MRB_FIBER_CREATED"},
+  {MRB_FIBER_RUNNING, "MRB_FIBER_RUNNING"},
+  {MRB_FIBER_RESUMING, "MRB_FIBER_RESUMING"},
+  {MRB_FIBER_SUSPENDED, "MRB_FIBER_SUSPENDED"},
+  {MRB_FIBER_TRANSFERRED, "MRB_FIBER_TRANSFERRED"},
+  {MRB_FIBER_TERMINATED, "MRB_FIBER_TERMINATED"}
+};
+
+static const char*
+tt2str(enum mrb_vtype tt)
+{
+  struct vtypes *vs;
+
+  for (vs = vtypelist; vs->name; vs++) {
+    if (vs->tt == tt)
+      return vs->name;
+  }
+  return NULL;
+}
+
+static const char*
+color2str(uint32_t color)
+{
+  struct colors *cs;
+
+  for (cs = colorlist; cs->name; cs++) {
+    if (cs->color == color)
+      return cs->name;
+  }
+  return NULL;
+}
+
+static const char*
+fiber_state2str(enum mrb_fiber_state s)
+{
+  struct fiber_states *fs;
+
+  for (fs = fiber_state_list; fs->name; fs++) {
+    if (fs->state == s)
+      return fs->name;
+  }
+  return NULL;
+}
+
 static mrb_value
 mrb_class_s_mrbconf(mrb_state *mrb, mrb_value mod)
 {
@@ -173,6 +263,13 @@ mrb_context_class_stend(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+mrb_context_class_status(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_str_new_cstr(mrb, fiber_state2str(c->status));
+}
+
+static mrb_value
 mrb_context_class_stack_length(mrb_state *mrb, mrb_value self)
 {
   struct mrb_context *c;
@@ -201,72 +298,6 @@ mrb_context_class_eq(mrb_state *mrb, mrb_value self)
   c2 = DATA_GET_PTR(mrb, other, &mrb_context_type, struct mrb_context);
 
   return mrb_bool_value(c1 == c2);
-}
-
-struct vtypes {
-  enum mrb_vtype tt;
-  const char *name;
-} vtypelist [] = {
-  {MRB_TT_FALSE,     "MRB_TT_FALSE"},
-  {MRB_TT_FREE,      "MRB_TT_FREE"},
-  {MRB_TT_TRUE,      "MRB_TT_TRUE"},
-  {MRB_TT_FIXNUM,    "MRB_TT_FIXNUM"},
-  {MRB_TT_SYMBOL,    "MRB_TT_SYMBOL"},
-  {MRB_TT_UNDEF,     "MRB_TT_UNDEF"},
-  {MRB_TT_FLOAT,     "MRB_TT_FLOAT"},
-  {MRB_TT_CPTR,      "MRB_TT_CPTR"},
-  {MRB_TT_OBJECT,    "MRB_TT_OBJECT"},
-  {MRB_TT_CLASS,     "MRB_TT_CLASS"},
-  {MRB_TT_MODULE,    "MRB_TT_MODULE"},
-  {MRB_TT_ICLASS,    "MRB_TT_ICLASS"},
-  {MRB_TT_SCLASS,    "MRB_TT_SCLASS"},
-  {MRB_TT_PROC,      "MRB_TT_PROC"},
-  {MRB_TT_ARRAY,     "MRB_TT_ARRAY"},
-  {MRB_TT_HASH,      "MRB_TT_HASH"},
-  {MRB_TT_STRING,    "MRB_TT_STRING"},
-  {MRB_TT_RANGE,     "MRB_TT_RANGE"},
-  {MRB_TT_EXCEPTION, "MRB_TT_EXCEPTION"},
-  {MRB_TT_FILE,      "MRB_TT_FILE"},
-  {MRB_TT_ENV,       "MRB_TT_ENV"},
-  {MRB_TT_DATA,      "MRB_TT_DATA"},
-  {MRB_TT_FIBER,     "MRB_TT_FIBER"},
-  {MRB_TT_MAXDEFINE, NULL},
-};
-
-struct colors {
-  uint32_t color:3;
-  const char *name;
-} colorlist [] = {
-  {0, "MRB_GC_GRAY"},
-  {1, "MRB_GC_WHITE_A"},
-  {2, "MRB_GC_WHITE_B"},
-  {3, "MRB_GC_WHITES"},
-  {4, "MRB_GC_BLACK"},
-  {5, NULL},
-};
-
-static const char*
-tt2str(enum mrb_vtype tt)
-{
-  struct vtypes *vs;
-
-  for (vs = vtypelist; vs->name; vs++) {
-    if (vs->tt == tt)
-      return vs->name;
-  }
-  return NULL;
-}
-
-static const char*
-color2str(uint32_t color)
-{
-  struct colors *cs;
-
-  for (cs = colorlist; cs->name; cs++) {
-    if (cs->color == color)
-      return cs->name;
-  }
-  return NULL;
 }
 
 static mrb_value
@@ -707,6 +738,7 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_context_class, "stack_at", mrb_context_class_stack_at, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_context_class, "stbase", mrb_context_class_stbase, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stend", mrb_context_class_stend, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "status", mrb_context_class_status, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stack_length", mrb_context_class_stack_length, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "ci_length", mrb_context_class_ci_length, MRB_ARGS_NONE());
 
