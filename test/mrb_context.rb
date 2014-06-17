@@ -6,6 +6,14 @@ assert 'MrbState.c' do
   assert_kind_of MrbState::MrbContext, MrbState.c
 end
 
+assert 'MrbState::MrbContext.size' do
+  assert_true 0 < MrbState::MrbContext.size
+end
+
+assert 'MrbState::MrbContext#prev' do
+  assert_kind_of MrbState::MrbContext, MrbState.c.prev
+end
+
 assert 'MrbState::MrbContext#stbase' do
   assert_equal self, MrbState.root_c.stbase
 end

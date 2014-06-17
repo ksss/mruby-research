@@ -210,21 +210,27 @@ mrb_free_context_class(mrb_state *mrb, void *p)
 static const struct mrb_data_type mrb_context_type = { "MrbContext", mrb_free_context_class };
 
 static mrb_value
-mrb_class_s_root_context(mrb_state *mrb, mrb_value self)
+mrb_class_s_root_context(mrb_state *mrb, mrb_value klass)
 {
   struct mrb_context *root_c = mrb->root_c;
-  struct RClass *mrb_context_class = mrb_class_get_under(mrb, mrb_class_ptr(self), "MrbContext");
+  struct RClass *mrb_context_class = mrb_class_get_under(mrb, mrb_class_ptr(klass), "MrbContext");
 
   return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_context_class, &mrb_context_type, root_c));
 }
 
 static mrb_value
-mrb_class_s_current_context(mrb_state *mrb, mrb_value self)
+mrb_class_s_current_context(mrb_state *mrb, mrb_value klass)
 {
   struct mrb_context *c = mrb->c;
-  struct RClass *mrb_context_class = mrb_class_get_under(mrb, mrb_class_ptr(self), "MrbContext");
+  struct RClass *mrb_context_class = mrb_class_get_under(mrb, mrb_class_ptr(klass), "MrbContext");
 
   return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_context_class, &mrb_context_type, c));
+}
+
+static mrb_value
+mrb_context_class_s_size(mrb_state *mrb, mrb_value klass)
+{
+  return mrb_fixnum_value(sizeof(struct mrb_context));
 }
 
 static mrb_value
@@ -236,6 +242,15 @@ mrb_context_class_initialize(mrb_state *mrb, mrb_value self)
   DATA_TYPE(self) = &mrb_context_type;
   DATA_PTR(self) = c;
   return self;
+}
+
+static mrb_value
+mrb_context_class_prev(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  struct RClass *mrb_context_class = mrb_class(mrb, self);
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_context_class, &mrb_context_type, c->prev));
 }
 
 static mrb_value
@@ -735,6 +750,8 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_value_class, "i", mrb_value_class_i, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "f", mrb_value_class_f, MRB_ARGS_NONE());
 
+  mrb_define_class_method(mrb, mrb_context_class, "size", mrb_context_class_s_size, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "prev", mrb_context_class_prev, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_context_class, "stack_at", mrb_context_class_stack_at, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_context_class, "stbase", mrb_context_class_stbase, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stend", mrb_context_class_stend, MRB_ARGS_NONE());
