@@ -27,6 +27,18 @@ assert 'MrbState::MrbContext#stend' do
   assert_nil MrbState.root_c.stend
 end
 
+assert 'MrbState::MrbContext#ci' do
+  assert_kind_of MrbState::MrbContext::MrbCallinfo, MrbState.root_c.ci
+end
+
+assert 'MrbState::MrbContext#cibase' do
+  assert_kind_of MrbState::MrbContext::MrbCallinfo, MrbState.root_c.cibase
+end
+
+assert 'MrbState::MrbContext#ciend' do
+  assert_kind_of MrbState::MrbContext::MrbCallinfo, MrbState.root_c.ciend
+end
+
 assert 'MrbState::MrbContext#rescue' do
   assert_kind_of Array, MrbState.root_c.rescue
 end

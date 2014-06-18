@@ -203,11 +203,12 @@ mrb_value_class_f(mrb_state *mrb, mrb_value mod)
 }
 
 void
-mrb_free_context_class(mrb_state *mrb, void *p)
+mrb_nofree(mrb_state *mrb, void *p)
 {
 }
 
-static const struct mrb_data_type mrb_context_type = { "MrbContext", mrb_free_context_class };
+static const struct mrb_data_type mrb_context_type = { "MrbContext", mrb_nofree };
+static const struct mrb_data_type mrb_callinfo_type = { "MrbCallinfo", mrb_nofree };
 
 static mrb_value
 mrb_class_s_root_context(mrb_state *mrb, mrb_value klass)
@@ -264,6 +265,33 @@ mrb_context_class_stend(mrb_state *mrb, mrb_value self)
 {
   struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
   return *c->stend;
+}
+
+static mrb_value
+mrb_context_class_ci(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  struct RClass *mrb_callinfo_class = mrb_class_get_under(mrb, mrb_class(mrb, self), "MrbCallinfo");
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_callinfo_class, &mrb_callinfo_type, c->ci));
+}
+
+static mrb_value
+mrb_context_class_cibase(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  struct RClass *mrb_callinfo_class = mrb_class_get_under(mrb, mrb_class(mrb, self), "MrbCallinfo");
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_callinfo_class, &mrb_callinfo_type, c->cibase));
+}
+
+static mrb_value
+mrb_context_class_ciend(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  struct RClass *mrb_callinfo_class = mrb_class_get_under(mrb, mrb_class(mrb, self), "MrbCallinfo");
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_callinfo_class, &mrb_callinfo_type, c->ciend));
 }
 
 static mrb_value
@@ -751,13 +779,16 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
   struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
   struct RClass *mrb_context_class = mrb_define_class_under(mrb, mrb_class, "MrbContext", mrb->object_class);
-  MRB_SET_INSTANCE_TT(mrb_context_class, MRB_TT_DATA);
+  struct RClass *mrb_callinfo_class = mrb_define_class_under(mrb, mrb_context_class, "MrbCallinfo", mrb->object_class);
   struct RClass *rbasic = mrb_define_class_under(mrb, mrb_class, "RBasic", mrb->object_class);
   struct RClass *rclass = mrb_define_class_under(mrb, mrb_class, "RClass", rbasic);
   struct RClass *rstring = mrb_define_class_under(mrb, mrb_class, "RString", rbasic);
   struct RClass *rproc = mrb_define_class_under(mrb, mrb_class, "RProc", rbasic);
   struct RClass *renv = mrb_define_class_under(mrb, mrb_class, "REnv", rbasic);
   struct RClass *mrb_irep_class = mrb_define_class_under(mrb, rproc, "MrbIrep", mrb->object_class);
+
+  MRB_SET_INSTANCE_TT(mrb_context_class, MRB_TT_DATA);
+  MRB_SET_INSTANCE_TT(mrb_callinfo_class, MRB_TT_DATA);
 
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
@@ -784,6 +815,9 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_context_class, "stack_at", mrb_context_class_stack_at, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_context_class, "stbase", mrb_context_class_stbase, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stend", mrb_context_class_stend, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "ci", mrb_context_class_ci, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "cibase", mrb_context_class_cibase, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "ciend", mrb_context_class_ciend, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "rescue", mrb_context_class_rescue, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "rsize", mrb_context_class_rsize, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "ensure", mrb_context_class_ensure, MRB_ARGS_NONE());
