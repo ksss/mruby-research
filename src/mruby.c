@@ -137,55 +137,55 @@ mrb_class_s_mrbconf(mrb_state *mrb, mrb_value mod)
 static mrb_value
 mrb_class_s_live(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->live);
+  return mrb_fixnum_value((mrb_int)mrb->live);
 }
 
 static mrb_value
 mrb_class_s_gc_live_after_mark(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->gc_live_after_mark);
+  return mrb_fixnum_value((mrb_int)mrb->gc_live_after_mark);
 }
 
 static mrb_value
 mrb_class_s_gc_threshold(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->gc_threshold);
+  return mrb_fixnum_value((mrb_int)mrb->gc_threshold);
 }
 
 static mrb_value
 mrb_class_s_gc_interval_ratio(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->gc_interval_ratio);
+  return mrb_fixnum_value((mrb_int)mrb->gc_interval_ratio);
 }
 
 static mrb_value
 mrb_class_s_gc_step_ratio(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->gc_step_ratio);
+  return mrb_fixnum_value((mrb_int)mrb->gc_step_ratio);
 }
 
 static mrb_value
 mrb_class_s_majorgc_old_threshold(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->majorgc_old_threshold);
+  return mrb_fixnum_value((mrb_int)mrb->majorgc_old_threshold);
 }
 
 static mrb_value
 mrb_class_s_symidx(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(mrb->symidx);
+  return mrb_fixnum_value((mrb_int)mrb->symidx);
 }
 
 static mrb_value
 mrb_class_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(mrb_state));
+  return mrb_fixnum_value((mrb_int)sizeof(mrb_state));
 }
 
 static mrb_value
 mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(mrb_value));
+  return mrb_fixnum_value((mrb_int)sizeof(mrb_value));
 }
 
 static mrb_value
@@ -230,18 +230,7 @@ mrb_class_s_current_context(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_context_class_s_size(mrb_state *mrb, mrb_value klass)
 {
-  return mrb_fixnum_value(sizeof(struct mrb_context));
-}
-
-static mrb_value
-mrb_context_class_initialize(mrb_state *mrb, mrb_value self)
-{
-  struct mrb_context *c;
-
-  c = mrb->c;
-  DATA_TYPE(self) = &mrb_context_type;
-  DATA_PTR(self) = c;
-  return self;
+  return mrb_fixnum_value((mrb_int)sizeof(struct mrb_context));
 }
 
 static mrb_value
@@ -278,10 +267,63 @@ mrb_context_class_stend(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+mrb_context_class_rescue(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  mrb_value a = mrb_ary_new(mrb);
+  mrb_int i;
+
+  for (i = 0; i < c->rsize; i++) {
+    if (c->rescue[i])
+      mrb_ary_set(mrb, a, i, mrb_fixnum_value((mrb_int)c->rescue[i])); /* FIXME hex str is more good? */
+    else
+      break;
+  }
+  return a;
+}
+
+static mrb_value
+mrb_context_class_rsize(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_fixnum_value((mrb_int)c->esize);
+}
+
+static mrb_value
+mrb_context_class_ensure(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  mrb_value a = mrb_ary_new(mrb);
+  mrb_int i;
+
+  for (i = 0; i < c->esize; i++) {
+    if (c->ensure[i])
+      mrb_ary_set(mrb, a, i, mrb_obj_value(c->ensure[i]));
+    else
+      break;
+  }
+  return a;
+}
+
+static mrb_value
+mrb_context_class_esize(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_fixnum_value((mrb_int)c->esize);
+}
+
+static mrb_value
 mrb_context_class_status(mrb_state *mrb, mrb_value self)
 {
   struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
   return mrb_str_new_cstr(mrb, fiber_state2str(c->status));
+}
+
+static mrb_value
+mrb_context_class_fib(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_obj_value(c->fib);
 }
 
 static mrb_value
@@ -290,7 +332,7 @@ mrb_context_class_stack_length(mrb_state *mrb, mrb_value self)
   struct mrb_context *c;
 
   c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
-  return mrb_fixnum_value(c->stend - c->stbase);
+  return mrb_fixnum_value((mrb_int)(c->stend - c->stbase));
 }
 
 static mrb_value
@@ -299,20 +341,7 @@ mrb_context_class_ci_length(mrb_state *mrb, mrb_value self)
   struct mrb_context *c;
 
   c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
-  return mrb_fixnum_value(c->ciend - c->cibase);
-}
-
-static mrb_value
-mrb_context_class_eq(mrb_state *mrb, mrb_value self)
-{
-  mrb_value other;
-  struct mrb_context *c1, *c2;
-
-  mrb_get_args(mrb, "o", &other);
-  c1 = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
-  c2 = DATA_GET_PTR(mrb, other, &mrb_context_type, struct mrb_context);
-
-  return mrb_bool_value(c1 == c2);
+  return mrb_fixnum_value((mrb_int)(c->ciend - c->cibase));
 }
 
 static mrb_value
@@ -322,7 +351,7 @@ rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
   struct vtypes *vs;
 
   for (vs = vtypelist; vs->name; vs++) {
-    mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, vs->name), mrb_fixnum_value(vs->tt));
+    mrb_hash_set(mrb, h, mrb_str_new_cstr(mrb, vs->name), mrb_fixnum_value((mrb_int)vs->tt));
   }
   return h;
 }
@@ -330,7 +359,7 @@ rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
 static mrb_value
 rbasic_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RBasic));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RBasic));
 }
 
 static mrb_value
@@ -366,13 +395,13 @@ rbasic_flags(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_fixnum_value(mrb_obj_ptr(obj)->flags);
+  return mrb_fixnum_value((mrb_int)mrb_obj_ptr(obj)->flags);
 }
 
 static mrb_value
 rclass_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RClass));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RClass));
 }
 
 static mrb_value
@@ -403,7 +432,7 @@ rclass_super(mrb_state *mrb, mrb_value self)
 static mrb_value
 rstring_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RString));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RString));
 }
 
 static mrb_value
@@ -423,7 +452,7 @@ rstring_embed_p(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_bool_value(RSTRING(obj)->flags & MRB_STR_EMBED);
+  return mrb_bool_value((RSTRING(obj)->flags & MRB_STR_EMBED) == MRB_STR_EMBED);
 }
 
 static mrb_value
@@ -431,7 +460,7 @@ rstring_nofree_p(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_bool_value(RSTRING(obj)->flags & MRB_STR_NOFREE);
+  return mrb_bool_value((RSTRING(obj)->flags & MRB_STR_NOFREE) == MRB_STR_NOFREE);
 }
 
 static mrb_value
@@ -439,7 +468,7 @@ rstring_shared_p(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_bool_value(RSTRING(obj)->flags & MRB_STR_SHARED);
+  return mrb_bool_value((RSTRING(obj)->flags & MRB_STR_SHARED) == MRB_STR_SHARED);
 }
 
 static mrb_value
@@ -453,7 +482,7 @@ rstring_capa(mrb_state *mrb, mrb_value self)
 static mrb_value
 rproc_s_size(mrb_state *mrb, mrb_value mod)
 {
-  return mrb_fixnum_value(sizeof(struct RProc));
+  return mrb_fixnum_value((mrb_int)sizeof(struct RProc));
 }
 
 static mrb_value
@@ -532,7 +561,7 @@ mrb_irep_class_nlocals(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_fixnum_value(mrb_proc_ptr(obj)->body.irep->nlocals);
+  return mrb_fixnum_value((mrb_int)mrb_proc_ptr(obj)->body.irep->nlocals);
 }
 
 static mrb_value
@@ -540,7 +569,7 @@ mrb_irep_class_nregs(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_fixnum_value(mrb_proc_ptr(obj)->body.irep->nregs);
+  return mrb_fixnum_value((mrb_int)mrb_proc_ptr(obj)->body.irep->nregs);
 }
 
 static mrb_value
@@ -548,7 +577,7 @@ mrb_irep_class_flags(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
-  return mrb_fixnum_value(mrb_proc_ptr(obj)->body.irep->flags);
+  return mrb_fixnum_value((mrb_int)mrb_proc_ptr(obj)->body.irep->flags);
 }
 
 static mrb_value
@@ -556,11 +585,11 @@ mrb_irep_class_iseq(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
-  mrb_value a = mrb_ary_new_capa(mrb, irep->ilen);
+  mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->ilen);
   mrb_int i;
 
   for (i = 0; i < irep->ilen; i++) {
-    mrb_ary_set(mrb, a, i, mrb_fixnum_value(irep->iseq[i]));
+    mrb_ary_set(mrb, a, i, mrb_fixnum_value((mrb_int)irep->iseq[i]));
   }
   return a;
 }
@@ -571,7 +600,7 @@ mrb_irep_class_pool(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_ary_new_from_values(mrb, irep->plen, irep->pool);
+  return mrb_ary_new_from_values(mrb, (mrb_int)irep->plen, irep->pool);
 }
 
 static mrb_value
@@ -579,7 +608,7 @@ mrb_irep_class_syms(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
-  mrb_value a = mrb_ary_new_capa(mrb, irep->slen);
+  mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->slen);
   mrb_int i;
 
   for (i = 0; i < irep->slen; i++) {
@@ -593,7 +622,7 @@ mrb_irep_class_reps(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
-  mrb_value a = mrb_ary_new_capa(mrb, irep->slen);
+  mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->slen);
   struct RClass *irep_class = mrb_obj_class(mrb, self);
   mrb_int i;
 
@@ -610,7 +639,7 @@ mrb_irep_class_lv(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
-  mrb_value a = mrb_ary_new_capa(mrb, irep->nlocals - 1);
+  mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)(irep->nlocals - 1));
   mrb_int i;
 
   if (!irep->lv)
@@ -620,7 +649,7 @@ mrb_irep_class_lv(mrb_state *mrb, mrb_value self)
     if (irep->lv[i].name) {
       mrb_value h = mrb_hash_new(mrb);
       mrb_hash_set(mrb, h, mrb_check_intern_cstr(mrb, "name"), mrb_symbol_value(irep->lv[i].name));
-      mrb_hash_set(mrb, h, mrb_check_intern_cstr(mrb, "r"), mrb_fixnum_value(irep->lv[i].r));
+      mrb_hash_set(mrb, h, mrb_check_intern_cstr(mrb, "r"), mrb_fixnum_value((mrb_int)irep->lv[i].r));
       mrb_ary_set(mrb, a, i, h);
     }
   }
@@ -642,12 +671,12 @@ mrb_irep_class_lines(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
   mrb_int iseq_no;
-  mrb_value a = mrb_ary_new_capa(mrb, irep->ilen);
+  mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->ilen);
 
   if (!irep->lines)
     return a;
   for (iseq_no = 0; iseq_no < irep->ilen; iseq_no++) {
-    mrb_ary_set(mrb, a, iseq_no, mrb_fixnum_value(irep->lines[iseq_no]));
+    mrb_ary_set(mrb, a, iseq_no, mrb_fixnum_value((mrb_int)irep->lines[iseq_no]));
   }
   return a;
 }
@@ -658,7 +687,7 @@ mrb_irep_class_ilen(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_fixnum_value(irep->ilen);
+  return mrb_fixnum_value((mrb_int)irep->ilen);
 }
 
 static mrb_value
@@ -667,7 +696,7 @@ mrb_irep_class_plen(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_fixnum_value(irep->plen);
+  return mrb_fixnum_value((mrb_int)irep->plen);
 }
 
 static mrb_value
@@ -676,7 +705,7 @@ mrb_irep_class_slen(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_fixnum_value(irep->slen);
+  return mrb_fixnum_value((mrb_int)irep->slen);
 }
 
 static mrb_value
@@ -685,7 +714,7 @@ mrb_irep_class_rlen(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_fixnum_value(irep->rlen);
+  return mrb_fixnum_value((mrb_int)irep->rlen);
 }
 
 static mrb_value
@@ -694,7 +723,7 @@ mrb_irep_class_refcnt(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_fixnum_value(irep->refcnt);
+  return mrb_fixnum_value((mrb_int)irep->refcnt);
 }
 
 static mrb_value
@@ -755,7 +784,12 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_context_class, "stack_at", mrb_context_class_stack_at, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, mrb_context_class, "stbase", mrb_context_class_stbase, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stend", mrb_context_class_stend, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "rescue", mrb_context_class_rescue, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "rsize", mrb_context_class_rsize, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "ensure", mrb_context_class_ensure, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "esize", mrb_context_class_esize, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "status", mrb_context_class_status, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_context_class, "fib", mrb_context_class_fib, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stack_length", mrb_context_class_stack_length, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "ci_length", mrb_context_class_ci_length, MRB_ARGS_NONE());
 
