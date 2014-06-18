@@ -271,9 +271,10 @@ static mrb_value
 mrb_context_class_ci(mrb_state *mrb, mrb_value self)
 {
   struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  mrb_callinfo *ci = c->ci;
   struct RClass *mrb_callinfo_class = mrb_class_get_under(mrb, mrb_class(mrb, self), "MrbCallinfo");
 
-  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_callinfo_class, &mrb_callinfo_type, c->ci));
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_callinfo_class, &mrb_callinfo_type, ci - 1)); /* back by self call */
 }
 
 static mrb_value
@@ -370,6 +371,27 @@ mrb_context_class_ci_length(mrb_state *mrb, mrb_value self)
 
   c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
   return mrb_fixnum_value((mrb_int)(c->ciend - c->cibase));
+}
+
+static mrb_value
+mrb_callinfo_class_mid(mrb_state *mrb, mrb_value self)
+{
+  mrb_callinfo *ci = DATA_GET_PTR(mrb, self, &mrb_callinfo_type, mrb_callinfo);
+  return mrb_symbol_value(ci->mid);
+}
+
+static mrb_value
+mrb_callinfo_class_proc(mrb_state *mrb, mrb_value self)
+{
+  mrb_callinfo *ci = DATA_GET_PTR(mrb, self, &mrb_callinfo_type, mrb_callinfo);
+  return mrb_obj_value(ci->proc);
+}
+
+static mrb_value
+mrb_callinfo_class_stackent(mrb_state *mrb, mrb_value self)
+{
+  mrb_callinfo *ci = DATA_GET_PTR(mrb, self, &mrb_callinfo_type, mrb_callinfo);
+  return *ci->stackent;
 }
 
 static mrb_value
@@ -826,6 +848,10 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_context_class, "fib", mrb_context_class_fib, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stack_length", mrb_context_class_stack_length, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "ci_length", mrb_context_class_ci_length, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, mrb_callinfo_class, "mid", mrb_callinfo_class_mid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_callinfo_class, "proc", mrb_callinfo_class_proc, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_callinfo_class, "stackent", mrb_callinfo_class_stackent, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, rbasic, "size", rbasic_s_size, MRB_ARGS_NONE());
