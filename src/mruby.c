@@ -395,6 +395,27 @@ mrb_callinfo_class_stackent(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+mrb_callinfo_class_nregs(mrb_state *mrb, mrb_value self)
+{
+  mrb_callinfo *ci = DATA_GET_PTR(mrb, self, &mrb_callinfo_type, mrb_callinfo);
+  return mrb_fixnum_value((mrb_int)ci->stackent);
+}
+
+static mrb_value
+mrb_callinfo_class_ridx(mrb_state *mrb, mrb_value self)
+{
+  mrb_callinfo *ci = DATA_GET_PTR(mrb, self, &mrb_callinfo_type, mrb_callinfo);
+  return mrb_fixnum_value(ci->ridx);
+}
+
+static mrb_value
+mrb_callinfo_class_eidx(mrb_state *mrb, mrb_value self)
+{
+  mrb_callinfo *ci = DATA_GET_PTR(mrb, self, &mrb_callinfo_type, mrb_callinfo);
+  return mrb_fixnum_value(ci->eidx);
+}
+
+static mrb_value
 rbasic_s_ttlist(mrb_state *mrb, mrb_value klass)
 {
   mrb_value h = mrb_hash_new(mrb);
@@ -852,6 +873,9 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_callinfo_class, "mid", mrb_callinfo_class_mid, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_callinfo_class, "proc", mrb_callinfo_class_proc, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_callinfo_class, "stackent", mrb_callinfo_class_stackent, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_callinfo_class, "nregs", mrb_callinfo_class_nregs, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_callinfo_class, "ridx", mrb_callinfo_class_ridx, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_callinfo_class, "eidx", mrb_callinfo_class_eidx, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, rbasic, "ttlist", rbasic_s_ttlist, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, rbasic, "size", rbasic_s_size, MRB_ARGS_NONE());
