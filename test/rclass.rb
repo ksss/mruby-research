@@ -20,3 +20,8 @@ assert 'MrbState::RClass#super' do
   r = Class.new.to_RClass
   assert_equal Object, r.super
 end
+
+assert 'MrbState::RClass#singleton_class?' do
+  assert_false Object.to_RClass.singleton_class?
+  assert_true Object.singleton_class.to_RClass.singleton_class?
+end

@@ -19,6 +19,10 @@ assert 'MrbState::MrbContext#stack_at' do
   assert_equal root_c, root_c.stack_at(0)
 end
 
+assert 'MrbState::MrbContext#stack_index' do
+  assert_true 0 < MrbState.c.stack_index
+end
+
 assert 'MrbState::MrbContext#stbase' do
   assert_equal self, MrbState.root_c.stbase
 end
@@ -69,4 +73,5 @@ end
 
 assert 'MrbState::MrbContext#stack_length' do
   assert_true 0 < MrbState.root_c.stack_length
+  assert_true MrbState.root_c.stack_index <= MrbState.root_c.stack_length
 end

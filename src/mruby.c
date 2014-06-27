@@ -254,6 +254,13 @@ mrb_context_class_stack_at(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+mrb_context_class_stack_index(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
+  return mrb_fixnum_value((mrb_int)(c->stack - c->stbase));
+}
+
+static mrb_value
 mrb_context_class_stbase(mrb_state *mrb, mrb_value self)
 {
   struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
@@ -489,8 +496,14 @@ static mrb_value
 rclass_super(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
-
   return mrb_obj_value(mrb_class_ptr(obj)->super);
+}
+
+static mrb_value
+rclass_singleton_class_p(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  return mrb_bool_value(mrb_class_ptr(obj)->tt == MRB_TT_SCLASS);
 }
 
 static mrb_value
@@ -846,8 +859,9 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, mrb_value_class, "f", mrb_value_class_f, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, mrb_context_class, "size", mrb_context_class_s_size, MRB_ARGS_NONE());
-  mrb_define_method(mrb, mrb_context_class, "prev", mrb_context_class_prev, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, mrb_context_class, "prev", mrb_context_class_prev, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stack_at", mrb_context_class_stack_at, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, mrb_context_class, "stack_index", mrb_context_class_stack_index, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stbase", mrb_context_class_stbase, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "stend", mrb_context_class_stend, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_context_class, "ci", mrb_context_class_ci, MRB_ARGS_NONE());
@@ -879,6 +893,7 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb, rclass, "size", rclass_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, rclass, "initialize", rclass_initialize, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rclass, "super", rclass_super, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rclass, "singleton_class?", rclass_singleton_class_p, MRB_ARGS_NONE());
 
   mrb_define_const(mrb, rstring, "RSTRING_EMBED_LEN_MAX", mrb_fixnum_value(RSTRING_EMBED_LEN_MAX));
   mrb_define_class_method(mrb, rstring, "size", rstring_s_size, MRB_ARGS_NONE());
