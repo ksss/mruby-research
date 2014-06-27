@@ -3,7 +3,7 @@ assert 'MrbState::RString.new' do
   assert_equal MrbState::RString, r.class
   assert_equal MrbState::RBasic, r.class.superclass
   assert_equal "MRB_TT_STRING", r.tt
-  assert_raise(ArgumentError){ MrbState::RString.new(1) }
+  assert_raise(TypeError){ MrbState::RString.new(1) }
 end
 
 assert 'Object#to_RString' do

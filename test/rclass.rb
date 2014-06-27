@@ -3,7 +3,7 @@ assert 'MrbState::RClass.new' do
   assert_equal MrbState::RClass, r.class
   assert_equal MrbState::RBasic, r.class.superclass
   assert_equal "MRB_TT_CLASS", r.tt
-  assert_raise(ArgumentError){ MrbState::RClass.new(1) }
+  assert_raise(TypeError){ MrbState::RClass.new(1) }
 end
 
 assert 'Object#to_RClass' do

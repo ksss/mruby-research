@@ -480,14 +480,7 @@ rclass_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj;
 
-  mrb_get_args(mrb, "o", &obj);
-  switch (mrb_type(obj)) {
-    case MRB_TT_CLASS:
-    case MRB_TT_MODULE:
-      break;
-    default:
-      mrb_raisef(mrb, E_ARGUMENT_ERROR, "RClass can not set %S", obj);
-  }
+  mrb_get_args(mrb, "C", &obj);
   mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
@@ -511,9 +504,7 @@ rstring_initialize(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj;
 
-  mrb_get_args(mrb, "o", &obj);
-  if (mrb_type(obj) != MRB_TT_STRING)
-    mrb_raisef(mrb, E_ARGUMENT_ERROR, "RString can not set %S", obj);
+  mrb_get_args(mrb, "S", &obj);
   mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
@@ -559,18 +550,19 @@ rproc_s_size(mrb_state *mrb, mrb_value mod)
 static mrb_value
 rproc_initialize(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj, block;
-  mrb_int argc;
+  mrb_value obj = mrb_nil_value(), block;
 
-  argc = mrb_get_args(mrb, "|o&", &obj, &block);
-  if (argc == 2) {
-    mrb_raise(mrb, E_ARGUMENT_ERROR, "RProc can set only one object");
-  }
-  if (!mrb_nil_p(block)) {
-    obj = block;
+  mrb_get_args(mrb, "|o&", &obj, &block);
+  if (mrb_type(block) == MRB_TT_PROC) {
+    if (mrb_nil_p(obj)) {
+      obj = block;
+    }
+    else {
+      mrb_raise(mrb, E_ARGUMENT_ERROR, "RProc can set only one Proc/Block");
+    }
   }
   if (mrb_type(obj) != MRB_TT_PROC)
-    mrb_raisef(mrb, E_ARGUMENT_ERROR, "RProc can not set %S", obj);
+    mrb_raisef(mrb, E_TYPE_ERROR, "RProc can not set %S (expected Proc)", obj);
   mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }

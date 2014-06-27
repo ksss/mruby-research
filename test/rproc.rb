@@ -5,7 +5,8 @@ assert 'MrbState::RProc.new' do
   assert_equal MrbState::RProc, r.class
   assert_equal MrbState::RBasic, r.class.superclass
   assert_equal "MRB_TT_PROC", r.tt
-  assert_raise(ArgumentError){ MrbState::RProc.new(1) }
+  assert_raise(ArgumentError){ MrbState::RProc.new(Proc.new{}){} }
+  assert_raise(TypeError){ MrbState::RProc.new(1) }
 end
 
 assert 'Object#to_RProc' do
