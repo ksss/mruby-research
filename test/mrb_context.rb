@@ -68,7 +68,11 @@ assert 'MrbState::MrbContext#status' do
 end
 
 assert 'MrbState::MrbContext#fib' do
-  assert_kind_of Fiber, MrbState.root_c.fib
+  if Object.const_defined? :Fiber
+    assert_kind_of Fiber, MrbState.root_c.fib
+  else
+    skip
+  end
 end
 
 assert 'MrbState::MrbContext#ci_length' do
