@@ -322,7 +322,7 @@ static mrb_value
 mrb_context_class_rsize(mrb_state *mrb, mrb_value self)
 {
   struct mrb_context *c = DATA_GET_PTR(mrb, self, &mrb_context_type, struct mrb_context);
-  return mrb_fixnum_value((mrb_int)c->esize);
+  return mrb_fixnum_value((mrb_int)c->rsize);
 }
 
 static mrb_value
