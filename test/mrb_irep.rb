@@ -19,7 +19,7 @@ end
 
 assert 'MrbState::RProc::MrbIrep#flags' do
   irep = MrbState::RProc::MrbIrep.new { }
-  assert_equal 0, irep.flags
+  assert_kind_of Fixnum, irep.flags
 end
 
 assert 'MrbState::RProc::MrbIrep#iseq' do

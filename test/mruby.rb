@@ -35,7 +35,7 @@ assert 'MrbState.gc_step_ratio' do
 end
 
 assert 'MrbState.majorgc_old_threshold' do
-  assert_true 0 < MrbState.majorgc_old_threshold
+  assert_true 0 <= MrbState.majorgc_old_threshold
 end
 
 assert 'MrbState.symidx' do
