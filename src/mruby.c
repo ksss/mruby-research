@@ -134,40 +134,61 @@ mrb_class_s_mrbconf(mrb_state *mrb, mrb_value mod)
   return h;
 }
 
-static mrb_value
-mrb_class_s_live(mrb_state *mrb, mrb_value mod)
+static void
+mrb_nofree(mrb_state *mrb, void *p)
 {
-  return mrb_fixnum_value((mrb_int)mrb->live);
+}
+
+static const struct mrb_data_type mrb_gc_type = { "MrbGC", mrb_nofree };
+
+static mrb_value
+mrb_class_s_gc(mrb_state *mrb, mrb_value klass)
+{
+  struct RClass *mrb_gc_class = mrb_class_get_under(mrb, mrb_class_ptr(klass), "MrbGC");
+
+  return mrb_obj_value(Data_Wrap_Struct(mrb, mrb_gc_class, &mrb_gc_type, &mrb->gc));
 }
 
 static mrb_value
-mrb_class_s_gc_live_after_mark(mrb_state *mrb, mrb_value mod)
+mrb_gc_live(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value((mrb_int)mrb->gc_live_after_mark);
+  struct mrb_gc *gc = DATA_GET_PTR(mrb, self, &mrb_gc_type, struct mrb_gc);
+  return mrb_fixnum_value((mrb_int)gc->live);
 }
 
 static mrb_value
-mrb_class_s_gc_threshold(mrb_state *mrb, mrb_value mod)
+mrb_gc_live_after_mark(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value((mrb_int)mrb->gc_threshold);
+  struct mrb_gc *gc = DATA_GET_PTR(mrb, self, &mrb_gc_type, struct mrb_gc);
+  return mrb_fixnum_value((mrb_int)gc->live_after_mark);
 }
 
 static mrb_value
-mrb_class_s_gc_interval_ratio(mrb_state *mrb, mrb_value mod)
+mrb_gc_threshold(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value((mrb_int)mrb->gc_interval_ratio);
+  struct mrb_gc *gc = DATA_GET_PTR(mrb, self, &mrb_gc_type, struct mrb_gc);
+  return mrb_fixnum_value((mrb_int)gc->threshold);
 }
 
 static mrb_value
-mrb_class_s_gc_step_ratio(mrb_state *mrb, mrb_value mod)
+mrb_gc_interval_ratio(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value((mrb_int)mrb->gc_step_ratio);
+  struct mrb_gc *gc = DATA_GET_PTR(mrb, self, &mrb_gc_type, struct mrb_gc);
+  return mrb_fixnum_value((mrb_int)gc->interval_ratio);
 }
 
 static mrb_value
-mrb_class_s_majorgc_old_threshold(mrb_state *mrb, mrb_value mod)
+mrb_gc_step_ratio(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value((mrb_int)mrb->majorgc_old_threshold);
+  struct mrb_gc *gc = DATA_GET_PTR(mrb, self, &mrb_gc_type, struct mrb_gc);
+  return mrb_fixnum_value((mrb_int)gc->step_ratio);
+}
+
+static mrb_value
+mrb_gc_majorgc_old_threshold(mrb_state *mrb, mrb_value self)
+{
+  struct mrb_gc *gc = DATA_GET_PTR(mrb, self, &mrb_gc_type, struct mrb_gc);
+  return mrb_fixnum_value((mrb_int)gc->majorgc_old_threshold);
 }
 
 static mrb_value
@@ -200,11 +221,6 @@ mrb_value_class_f(mrb_state *mrb, mrb_value mod)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
   return mrb_float_value(mrb, mrb_float(obj));
-}
-
-void
-mrb_nofree(mrb_state *mrb, void *p)
-{
 }
 
 static const struct mrb_data_type mrb_context_type = { "MrbContext", mrb_nofree };
@@ -825,6 +841,7 @@ void
 mrb_mruby_research_gem_init(mrb_state* mrb)
 {
   struct RClass *mrb_class = mrb_define_module(mrb, "MrbState");
+  struct RClass *mrb_gc_class = mrb_define_class_under(mrb, mrb_class, "MrbGC", mrb->object_class);
   struct RClass *mrb_value_class = mrb_define_class_under(mrb, mrb_class, "MrbValue", mrb->object_class);
   struct RClass *mrb_context_class = mrb_define_class_under(mrb, mrb_class, "MrbContext", mrb->object_class);
   struct RClass *mrb_callinfo_class = mrb_define_class_under(mrb, mrb_context_class, "MrbCallinfo", mrb->object_class);
@@ -842,16 +859,18 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
   mrb_define_class_method(mrb, mrb_class, "mrbconf", mrb_class_s_mrbconf, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "live", mrb_class_s_live, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "gc_live_after_mark", mrb_class_s_gc_live_after_mark, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "gc_threshold", mrb_class_s_gc_threshold, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "gc_interval_ratio", mrb_class_s_gc_interval_ratio, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "gc_step_ratio", mrb_class_s_gc_step_ratio, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, mrb_class, "majorgc_old_threshold", mrb_class_s_majorgc_old_threshold, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "symidx", mrb_class_s_symidx, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "size", mrb_class_s_size, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "root_c", mrb_class_s_root_context, MRB_ARGS_NONE());
   mrb_define_class_method(mrb, mrb_class, "c", mrb_class_s_current_context, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, mrb_class, "gc", mrb_class_s_gc, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, mrb_gc_class, "live", mrb_gc_live, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_gc_class, "live_after_mark", mrb_gc_live_after_mark, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_gc_class, "threshold", mrb_gc_threshold, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_gc_class, "interval_ratio", mrb_gc_interval_ratio, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_gc_class, "step_ratio", mrb_gc_step_ratio, MRB_ARGS_NONE());
+  mrb_define_method(mrb, mrb_gc_class, "majorgc_old_threshold", mrb_gc_majorgc_old_threshold, MRB_ARGS_NONE());
 
   mrb_define_class_method(mrb, mrb_value_class, "size", mrb_value_class_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, mrb_value_class, "initialize", rbasic_initialize, MRB_ARGS_REQ(1));
