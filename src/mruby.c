@@ -625,7 +625,11 @@ rproc_target_class(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
 
+#ifdef MRB_PROC_TARGET_CLASS
+  return mrb_obj_value(MRB_PROC_TARGET_CLASS(mrb_proc_ptr(obj)));
+#else
   return mrb_obj_value(mrb_proc_ptr(obj)->target_class);
+#endif
 }
 
 static mrb_value
