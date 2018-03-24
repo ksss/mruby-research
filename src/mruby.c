@@ -214,16 +214,16 @@ mrb_value_class_s_size(mrb_state *mrb, mrb_value mod)
 }
 
 static mrb_value
-mrb_value_class_i(mrb_state *mrb, mrb_value mod)
+mrb_value_class_i(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   return mrb_fixnum_value(mrb_fixnum(obj));
 }
 
 static mrb_value
-mrb_value_class_f(mrb_state *mrb, mrb_value mod)
+mrb_value_class_f(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   return mrb_float_value(mrb, mrb_float(obj));
 }
 
@@ -470,14 +470,14 @@ rbasic_initialize(mrb_state *mrb, mrb_value self)
   mrb_value obj;
 
   mrb_get_args(mrb, "o", &obj);
-  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
 
 static mrb_value
 rbasic_tt(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   enum mrb_vtype tt = mrb_type(obj);
 
   return mrb_str_new_cstr(mrb, tt2str(tt));
@@ -486,7 +486,7 @@ rbasic_tt(mrb_state *mrb, mrb_value self)
 static mrb_value
 rbasic_color(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   uint32_t color = mrb_obj_ptr(obj)->color;
 
   return mrb_str_new_cstr(mrb, color2str(color));
@@ -495,7 +495,7 @@ rbasic_color(mrb_state *mrb, mrb_value self)
 static mrb_value
 rbasic_flags(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_fixnum_value((mrb_int)mrb_obj_ptr(obj)->flags);
 }
@@ -512,21 +512,21 @@ rclass_initialize(mrb_state *mrb, mrb_value self)
   mrb_value obj;
 
   mrb_get_args(mrb, "C", &obj);
-  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
 
 static mrb_value
 rclass_super(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   return mrb_obj_value(mrb_class_ptr(obj)->super);
 }
 
 static mrb_value
 rclass_singleton_class_p(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   return mrb_bool_value(mrb_class_ptr(obj)->tt == MRB_TT_SCLASS);
 }
 
@@ -542,14 +542,14 @@ rstring_initialize(mrb_state *mrb, mrb_value self)
   mrb_value obj;
 
   mrb_get_args(mrb, "S", &obj);
-  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
 
 static mrb_value
 rstring_embed_p(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_bool_value((RSTRING(obj)->flags & MRB_STR_EMBED) == MRB_STR_EMBED);
 }
@@ -557,7 +557,7 @@ rstring_embed_p(mrb_state *mrb, mrb_value self)
 static mrb_value
 rstring_nofree_p(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_bool_value((RSTRING(obj)->flags & MRB_STR_NOFREE) == MRB_STR_NOFREE);
 }
@@ -565,7 +565,7 @@ rstring_nofree_p(mrb_state *mrb, mrb_value self)
 static mrb_value
 rstring_shared_p(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_bool_value((RSTRING(obj)->flags & MRB_STR_SHARED) == MRB_STR_SHARED);
 }
@@ -573,7 +573,7 @@ rstring_shared_p(mrb_state *mrb, mrb_value self)
 static mrb_value
 rstring_capa(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_fixnum_value(RSTRING_CAPA(obj));
 }
@@ -600,14 +600,14 @@ rproc_initialize(mrb_state *mrb, mrb_value self)
   }
   if (mrb_type(obj) != MRB_TT_PROC)
     mrb_raisef(mrb, E_TYPE_ERROR, "RProc can not set %S (expected Proc)", obj);
-  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
 
 static mrb_value
 rproc_cfunc_p(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_bool_value(MRB_PROC_CFUNC_P(mrb_proc_ptr(obj)));
 }
@@ -615,7 +615,7 @@ rproc_cfunc_p(mrb_state *mrb, mrb_value self)
 static mrb_value
 rproc_strict_p(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_bool_value(MRB_PROC_STRICT_P(mrb_proc_ptr(obj)));
 }
@@ -623,7 +623,7 @@ rproc_strict_p(mrb_state *mrb, mrb_value self)
 static mrb_value
 rproc_target_class(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
 #ifdef MRB_PROC_TARGET_CLASS
   return mrb_obj_value(MRB_PROC_TARGET_CLASS(mrb_proc_ptr(obj)));
@@ -635,7 +635,7 @@ rproc_target_class(mrb_state *mrb, mrb_value self)
 static mrb_value
 rproc_irep(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   struct RClass *irep_class = mrb_class_get_under(mrb, mrb_obj_class(mrb, self), "MrbIrep");
 
   return mrb_funcall(mrb, mrb_obj_value(irep_class), "new", 1, obj);
@@ -656,14 +656,14 @@ mrb_irep_class_initialize(mrb_state *mrb, mrb_value self)
   }
   if (mrb_type(obj) != MRB_TT_PROC)
     mrb_raisef(mrb, E_ARGUMENT_ERROR, "MrbIrep can not set %S", obj);
-  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
 
 static mrb_value
 mrb_irep_class_nlocals(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_fixnum_value((mrb_int)mrb_proc_ptr(obj)->body.irep->nlocals);
 }
@@ -671,7 +671,7 @@ mrb_irep_class_nlocals(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_nregs(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_fixnum_value((mrb_int)mrb_proc_ptr(obj)->body.irep->nregs);
 }
@@ -679,7 +679,7 @@ mrb_irep_class_nregs(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_flags(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
 
   return mrb_fixnum_value((mrb_int)mrb_proc_ptr(obj)->body.irep->flags);
 }
@@ -687,7 +687,7 @@ mrb_irep_class_flags(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_iseq(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
   mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->ilen);
   mrb_int i;
@@ -701,7 +701,7 @@ mrb_irep_class_iseq(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_pool(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_ary_new_from_values(mrb, (mrb_int)irep->plen, irep->pool);
@@ -710,7 +710,7 @@ mrb_irep_class_pool(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_syms(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
   mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->slen);
   mrb_int i;
@@ -724,7 +724,7 @@ mrb_irep_class_syms(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_reps(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
   mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->slen);
   struct RClass *irep_class = mrb_obj_class(mrb, self);
@@ -741,7 +741,7 @@ mrb_irep_class_reps(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_lv(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
   mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)(irep->nlocals - 1));
   mrb_int i;
@@ -763,7 +763,7 @@ mrb_irep_class_lv(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_filename(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_str_new_cstr(mrb, irep->filename);
@@ -772,7 +772,7 @@ mrb_irep_class_filename(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_lines(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
   mrb_int iseq_no;
   mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->ilen);
@@ -788,7 +788,7 @@ mrb_irep_class_lines(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_ilen(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_fixnum_value((mrb_int)irep->ilen);
@@ -797,7 +797,7 @@ mrb_irep_class_ilen(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_plen(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_fixnum_value((mrb_int)irep->plen);
@@ -806,7 +806,7 @@ mrb_irep_class_plen(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_slen(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_fixnum_value((mrb_int)irep->slen);
@@ -815,7 +815,7 @@ mrb_irep_class_slen(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_rlen(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_fixnum_value((mrb_int)irep->rlen);
@@ -824,7 +824,7 @@ mrb_irep_class_rlen(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_irep_class_refcnt(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj = mrb_vm_iv_get(mrb, mrb_intern_lit(mrb, "@obj"));
+  mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
   return mrb_fixnum_value((mrb_int)irep->refcnt);
@@ -845,7 +845,7 @@ renv_initialize(mrb_state *mrb, mrb_value self)
   }
   if (mrb_type(obj) != MRB_TT_PROC)
     mrb_raisef(mrb, E_ARGUMENT_ERROR, "REnv can not set %S", obj);
-  mrb_vm_iv_set(mrb, mrb_intern_lit(mrb, "@obj"), obj);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@obj"), obj);
   return self;
 }
 
