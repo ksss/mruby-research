@@ -935,7 +935,11 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, rstring, "embed?", rstring_embed_p, MRB_ARGS_NONE());
   mrb_define_method(mrb, rstring, "capa", rstring_capa, MRB_ARGS_NONE());
 
+#ifdef MRB_PROC_CFUNC_FL
+  mrb_define_const(mrb, rproc, "MRB_PROC_CFUNC", mrb_fixnum_value(MRB_PROC_CFUNC_FL));
+#else
   mrb_define_const(mrb, rproc, "MRB_PROC_CFUNC", mrb_fixnum_value(MRB_PROC_CFUNC));
+#endif
   mrb_define_const(mrb, rproc, "MRB_PROC_STRICT", mrb_fixnum_value(MRB_PROC_STRICT));
   mrb_define_class_method(mrb, rproc, "size", rproc_s_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, rproc, "initialize", rproc_initialize, MRB_ARGS_NONE());
