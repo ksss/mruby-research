@@ -55,12 +55,20 @@ end
 
 assert 'MrbState::RProc::MrbIrep#filename' do
   irep = MrbState::RProc::MrbIrep.new { }
-  assert_equal "", irep.filename
+  if MrbState::MRB_DEBUG
+    assert_equal __FILE__, irep.filename
+  else
+    assert_equal "", irep.filename
+  end
 end
 
 assert 'MrbState::RProc::MrbIrep#lines' do
-  irep = MrbState::RProc::MrbIrep.new { }
-  assert_equal [], irep.lines
+  irep = MrbState::RProc::MrbIrep.new { }; line = __LINE__
+  if MrbState::MRB_DEBUG
+    assert_equal [line] * irep.ilen, irep.lines
+  else
+    assert_equal [], irep.lines
+  end
 end
 
 assert 'MrbState::RProc::MrbIrep#ilen' do
