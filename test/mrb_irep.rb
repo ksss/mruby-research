@@ -24,7 +24,11 @@ end
 
 assert 'MrbState::RProc::MrbIrep#iseq' do
   irep = MrbState::RProc::MrbIrep.new { }
-  assert_equal [8388613, 8388649], irep.iseq
+  if MRUBY_RELEASE_NO < 20000
+    assert_equal [8388613, 8388649], irep.iseq
+  else
+    assert_equal [15, 1, 55, 1], irep.iseq
+  end
 end
 
 assert 'MrbState::RProc::MrbIrep#pool' do
@@ -50,7 +54,9 @@ assert 'MrbState::RProc::MrbIrep#lv' do
   assert_equal [], irep.lv
 
   irep = MrbState::RProc::MrbIrep.new {|a,b,c| }
-  assert_equal [{name: :a, r: 1}, {name: :b, r: 2}, {name: :c, r: 3}], irep.lv
+  lv = [{name: :a, r: 1}, {name: :b, r: 2}, {name: :c, r: 3}]
+  lv << {name: :&, r: 4} if MRUBY_RELEASE_NO >= 20000
+  assert_equal lv, irep.lv
 end
 
 assert 'MrbState::RProc::MrbIrep#filename' do
@@ -65,10 +71,18 @@ end
 
 assert 'MrbState::RProc::MrbIrep#ilen' do
   irep = MrbState::RProc::MrbIrep.new { }
-  assert_equal 2, irep.ilen
+  if MRUBY_RELEASE_NO < 20000
+    assert_equal 2, irep.ilen
+  else
+    assert_equal 4, irep.ilen
+  end
 
   irep = MrbState::RProc::MrbIrep.new {|a| }
-  assert_equal 3, irep.ilen
+  if MRUBY_RELEASE_NO < 20000
+    assert_equal 3, irep.ilen
+  else
+    assert_equal 8, irep.ilen
+  end
 end
 
 assert 'MrbState::RProc::MrbIrep#plen' do
