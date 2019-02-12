@@ -868,6 +868,12 @@ mrb_mruby_research_gem_init(mrb_state* mrb)
   MRB_SET_INSTANCE_TT(mrb_context_class, MRB_TT_DATA);
   MRB_SET_INSTANCE_TT(mrb_callinfo_class, MRB_TT_DATA);
 
+#ifdef MRB_DEBUG
+  mrb_define_const(mrb, mrb_class, "MRB_DEBUG", mrb_true_value());
+#else
+  mrb_define_const(mrb, mrb_class, "MRB_DEBUG", mrb_false_value());
+#endif
+
   mrb_define_const(mrb, mrb_class, "MRB_INT_BIT", mrb_fixnum_value(MRB_INT_BIT));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrb_class, "MRB_INT_MAX", mrb_fixnum_value(MRB_INT_MAX));
