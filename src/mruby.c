@@ -8,6 +8,7 @@
 #include <mruby/hash.h>
 #include <mruby/proc.h>
 #include <mruby/irep.h>
+#include <mruby/debug.h>
 #include <mruby/string.h>
 #include <mruby/array.h>
 #include <mruby/variable.h>
@@ -766,7 +767,7 @@ mrb_irep_class_filename(mrb_state *mrb, mrb_value self)
   mrb_value obj = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@obj"));
   mrb_irep *irep = mrb_proc_ptr(obj)->body.irep;
 
-  return mrb_str_new_cstr(mrb, irep->filename);
+  return mrb_str_new_cstr(mrb, mrb_debug_get_filename(irep, 0));
 }
 
 static mrb_value
@@ -777,10 +778,10 @@ mrb_irep_class_lines(mrb_state *mrb, mrb_value self)
   mrb_int iseq_no;
   mrb_value a = mrb_ary_new_capa(mrb, (mrb_int)irep->ilen);
 
-  if (!irep->lines)
-    return a;
   for (iseq_no = 0; iseq_no < irep->ilen; iseq_no++) {
-    mrb_ary_set(mrb, a, iseq_no, mrb_fixnum_value((mrb_int)irep->lines[iseq_no]));
+    mrb_int line = mrb_debug_get_line(irep, iseq_no);
+    if (line < 0) { break; }
+    mrb_ary_set(mrb, a, iseq_no, mrb_fixnum_value(line));
   }
   return a;
 }
